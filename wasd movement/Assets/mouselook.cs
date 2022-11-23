@@ -11,6 +11,10 @@ public class mouselook : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        for (int i = 0; i < Camera.allCamerasCount; i++)
+        {
+            if (Camera.allCameras[i].gameObject != this.gameObject) Destroy(Camera.allCameras[i].gameObject);
+        }
         Cursor.lockState = CursorLockMode.Locked;
     }
 
