@@ -9,8 +9,11 @@ public class NetworkCommandLine : MonoBehaviour
 
     void Start()
     {
-        netManager = GetComponentInParent<NetworkManager>();
+        /*
         if (Application.isEditor) return;
+        netManager = GetComponentInParent<NetworkManager>();
+        netManager.StartClient();
+        
         var args = GetCommandlineArgs();
         if(args.TryGetValue("-mode", out string mode))
         {
@@ -26,9 +29,10 @@ public class NetworkCommandLine : MonoBehaviour
                     netManager.StartClient();
                     break;
                 default:
+                    netManager.StartClient();
                     break;
             }
-        }
+        }*/
     }
 
     private Dictionary<string, string> GetCommandlineArgs()

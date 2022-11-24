@@ -11,6 +11,11 @@ public class mouselook : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        if (!transform.parent.GetComponent<playermovment>().IsOwner)
+        {
+            Destroy(gameObject);
+            return;
+        }
         for (int i = 0; i < Camera.allCamerasCount; i++)
         {
             if (Camera.allCameras[i].gameObject != this.gameObject) Destroy(Camera.allCameras[i].gameObject);
