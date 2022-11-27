@@ -18,7 +18,6 @@ public class ConnectionManager : MonoBehaviour
 
     private void Start()
     {
-        connectionTypePanel.SetActive(true);
     }
 
     public void connectAsHost()

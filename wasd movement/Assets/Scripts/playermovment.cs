@@ -5,7 +5,7 @@ using Unity.Netcode;
 
 public class playermovment : NetworkBehaviour
 {
-    [SerializeField] float mouseSensitivity = 3f;
+    [SerializeField] Vector2 mouseSensitivity = new Vector2(1f,1f);
     [SerializeField] float movementSpeed = 5f;
     [SerializeField] float jumpSpeed = 5f;
     [SerializeField] float mass = 1f;
@@ -21,6 +21,7 @@ public class playermovment : NetworkBehaviour
     }
     void Start()
     {
+        switchCameraTo(cameraTransform.gameObject);
         Cursor.lockState = CursorLockMode.Locked;
     }
 
@@ -33,21 +34,21 @@ public class playermovment : NetworkBehaviour
 
     void UpdateGravity()
     {
-        var gravity = Physics.gravity * mass * Time.deltaTime;
+        Vector3 gravity = Physics.gravity * mass * Time.deltaTime;
         velocity.y = controller.isGrounded ? -1f : velocity.y + gravity.y;
     }
     
     void UpdateMovement()
     {
-        var x = Input.GetAxis("Horizontal");
-        var y = Input.GetAxis("Vertical");
+        float x = Input.GetAxis("Horizontal");
+        float y = Input.GetAxis("Vertical");
         
-        var input = new Vector3();
+        Vector3 input = new Vector3();
         input += transform.forward * y;
         input += transform.right * x;
         input = Vector3.ClampMagnitude(input, 1f); // diagnol movement = forward movement
 
-        if (Input.GetButtonDown("Jump") && controller.isGrounded);
+        if (Input.GetButtonDown("Jump") && controller.isGrounded)
         {
             velocity.y += jumpSpeed;
         }
@@ -57,12 +58,21 @@ public class playermovment : NetworkBehaviour
 
     void UpdateLook()
     {
-        look.x += Input.GetAxis("Mouse X");
-        look.y += Input.GetAxis("Mouse Y");
+        look.x += Input.GetAxis("Mouse X") * mouseSensitivity.x;
+        look.y += Input.GetAxis("Mouse Y") * mouseSensitivity.y;
 
         look.y = Mathf.Clamp(look.y, -89f, 89f);
 
         cameraTransform.localRotation = Quaternion.Euler(-look.y, 0, 0);
         transform.localRotation = Quaternion.Euler(0, look.x, 0);
+    }
+
+    void switchCameraTo(GameObject go)
+    {
+        for (int i = 0; i < Camera.allCamerasCount; i++)
+        {
+            if (Camera.allCameras[i].gameObject != go) Destroy(Camera.allCameras[i].gameObject);
+        }
+        Cursor.lockState = CursorLockMode.Locked;
     }
 }
