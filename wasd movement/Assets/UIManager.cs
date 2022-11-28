@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using TMPro;
 
 public class UIManager : MonoBehaviour
 {
@@ -21,6 +22,7 @@ public class UIManager : MonoBehaviour
     {
         uiStack.Push(startingUI);
         triggerForUI.Add("Start Screen", new UITriggers(StartScreenToEnterUsername));
+        triggerForUI.Add("Enter Username", new UITriggers(EnterUsernameToLobbyScreen));
     }
 
     private void Update()
@@ -38,7 +40,6 @@ public class UIManager : MonoBehaviour
             if (eachChild == nextUI.transform)
             {
                 eachChild.gameObject.SetActive(true);
-                Debug.Log(eachChild.gameObject.name);
                 uiStack.Push(eachChild.gameObject);
                 return;
             }    
@@ -55,7 +56,6 @@ public class UIManager : MonoBehaviour
         if (childO != null)
         {
             childO.gameObject.SetActive(true);
-            Debug.Log(childO.gameObject.name);
             uiStack.Push(childO.gameObject);
             return;
         }
@@ -68,9 +68,20 @@ public class UIManager : MonoBehaviour
         uiStack.Pop();
         if (uiStack.Peek().transform.Find("UI") != null)
             uiStack.Peek().transform.Find("UI").gameObject.SetActive(true);
-        Debug.Log(uiStack.Peek().transform.Find("UI").gameObject.name);
     }
 
     void StartScreenToEnterUsername()
     { if (Input.anyKey && !Input.GetKey(KeyCode.Escape)) continueBranch("Enter Username"); }
+
+    void EnterUsernameToLobbyScreen()
+    { 
+        transform.GetComponentInChildren<TMP_InputField>().Select();
+        if (Input.GetKey(KeyCode.Escape))
+            revertBranch();
+        else if (Input.GetKey(KeyCode.Return) || Input.GetKey(KeyCode.KeypadEnter))
+        {
+            //settings.setUsername(transform.GetComponentInChildren<TMP_InputField>().text);
+            continueBranch("Lobby Screen");
+        }
+    }
 }
