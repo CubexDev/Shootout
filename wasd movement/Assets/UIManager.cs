@@ -10,6 +10,7 @@ public class UIManager : MonoBehaviour
         private set { if (Instance != null) { Debug.LogWarning("UIManager already exists"); Instance = value; } else Instance = value; }  }*/
     Stack<GameObject> uiStack = new Stack<GameObject>();
     public GameObject startingUI;
+    public GameObject gameScreen;
     delegate void UITriggers();
     Dictionary<string, UITriggers> triggerForUI = new Dictionary<string, UITriggers>();
 
@@ -23,12 +24,18 @@ public class UIManager : MonoBehaviour
         uiStack.Push(startingUI);
         triggerForUI.Add("Start Screen", new UITriggers(StartScreenToEnterUsername));
         triggerForUI.Add("Enter Username", new UITriggers(EnterUsernameToLobbyScreen));
+        triggerForUI.Add("Lobby Screen", new UITriggers(LobbyScreen));
+        triggerForUI.Add("Join a LAN Game", new UITriggers(JoinALANGameToJoiningGame));
+        triggerForUI.Add("Host a LAN Game", new UITriggers(gameScreenActive));
+        triggerForUI.Add("Joining Game", new UITriggers(gameScreenActive));
     }
 
     private void Update()
     {
         if(triggerForUI.ContainsKey(uiStack.Peek().name))
             triggerForUI[uiStack.Peek().name]();
+        if (Input.GetKeyDown(KeyCode.Escape) && uiStack.Count > 1)
+            revertBranch();
     }
 
     public void continueBranch(GameObject nextUI)
@@ -71,17 +78,54 @@ public class UIManager : MonoBehaviour
     }
 
     void StartScreenToEnterUsername()
-    { if (Input.anyKey && !Input.GetKey(KeyCode.Escape)) continueBranch("Enter Username"); }
+    { if (Input.anyKey && !Input.GetKeyDown(KeyCode.Escape)) continueBranch("Enter Username"); }
 
     void EnterUsernameToLobbyScreen()
-    { 
+    {
+        transform.GetComponentInChildren<TMP_InputField>().ActivateInputField();
         transform.GetComponentInChildren<TMP_InputField>().Select();
-        if (Input.GetKey(KeyCode.Escape))
-            revertBranch();
-        else if (Input.GetKey(KeyCode.Return) || Input.GetKey(KeyCode.KeypadEnter))
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
         {
             //settings.setUsername(transform.GetComponentInChildren<TMP_InputField>().text);
             continueBranch("Lobby Screen");
+        }
+    }
+
+    void LobbyScreen()
+    {
+        if (gameScreen.activeSelf)
+        {
+            gameScreen.SetActive(false);
+            Application.Quit();
+            //GetComponent<ConnectionManager>().disconnect();
+        }
+    }
+
+    void JoinALANGameToJoiningGame()
+    {
+        if (gameScreen.activeSelf)
+        { 
+            gameScreen.SetActive(false);
+            Application.Quit();
+            //GetComponent<ConnectionManager>().disconnect();
+        }
+        transform.GetComponentInChildren<TMP_InputField>().ActivateInputField();
+        transform.GetComponentInChildren<TMP_InputField>().Select();
+        if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            //settings.setUsername(transform.GetComponentInChildren<TMP_InputField>().text);
+            continueBranch("Joining Game");
+            GetComponent<ConnectionManager>().connectToHost(transform.GetComponentInChildren<TMP_InputField>().text);
+        }
+    }
+
+    void gameScreenActive()
+    {
+        if (!gameScreen.activeSelf)
+        {
+            gameScreen.SetActive(true);
+            if(uiStack.Peek().name == "Host a LAN Game")
+                GetComponent<ConnectionManager>().connectAsHost();
         }
     }
 }
