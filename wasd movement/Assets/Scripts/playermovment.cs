@@ -2,22 +2,41 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
+using UnityEngine.InputSystem;
+using System;
 
 public class playermovment : NetworkBehaviour
 {
-    [SerializeField] Vector2 mouseSensitivity = new Vector2(1f,1f);
+    [SerializeField] float mouseSensitivity = 3f;
     [SerializeField] float movementSpeed = 5f;
     [SerializeField] float jumpSpeed = 5f;
     [SerializeField] float mass = 1f;
+    [SerializeField] float acceleration = 20f;
     [SerializeField] Transform cameraTransform;
     
+    public bool isGrounded => controller.isGrounded;
+
+    public event Action OnBeforeMove;
+    public event Action<bool> OnGroundStateChange;
+
+    internal float movementSpeedMulitplier;
+    
+    
     CharacterController controller;
-    Vector3 velocity;
+    internal Vector3 velocity;
     Vector2 look;
+    private bool  wasGrounded;
+
+    PlayerInput playerInput;
+    InputAction moveAction;
+    InputAction lookAction;
 
     void Awake()
     {
         controller = GetComponent<CharacterController>();
+        playerInput = GetComponent<PlayerInput>();
+        moveAction = playerInput.actions["move"];
+        lookAction = playerInput.actions["look"];
     }
     void Start()
     {
@@ -27,9 +46,19 @@ public class playermovment : NetworkBehaviour
 
     void Update()
     {
+        UpdateGround();
         UpdateGravity();
         UpdateMovement();
         UpdateLook();
+    }
+
+    void UpdateGround()
+    {
+        if (wasGrounded != isGrounded)
+        {
+            OnGroundStateChange?.Invoke(isGrounded);
+            wasGrounded = isGrounded;
+        }
     }
 
     void UpdateGravity()
@@ -38,28 +67,35 @@ public class playermovment : NetworkBehaviour
         velocity.y = controller.isGrounded ? -1f : velocity.y + gravity.y;
     }
     
+    Vector3 GetMovementInput()
+    {
+        var moveInput = moveAction.ReadValue<Vector2>();
+        Vector3 input = new Vector3();
+        input += transform.forward * moveInput.y;
+        input += transform.right * moveInput.x;
+        input = Vector3.ClampMagnitude(input, 1f); // diagnol movement = forward movement
+        input *= movementSpeed;
+        return input;
+    }
+    
+    
+    
     void UpdateMovement()
     {
-        float x = Input.GetAxis("Horizontal");
-        float y = Input.GetAxis("Vertical");
-        
-        Vector3 input = new Vector3();
-        input += transform.forward * y;
-        input += transform.right * x;
-        input = Vector3.ClampMagnitude(input, 1f); // diagnol movement = forward movement
+        var input = GetMovementInput();
 
-        if (Input.GetButtonDown("Jump") && controller.isGrounded)
-        {
-            velocity.y += jumpSpeed;
-        }
+        var factor = acceleration * Time.deltaTime;
+        velocity.x = Mathf.Lerp(velocity.x, input.x, factor);
+        velocity.z = Mathf.Lerp(velocity.z, input.z, factor);
 
-        controller.Move((input * movementSpeed + velocity) * Time.deltaTime);
+        controller.Move(velocity * Time.deltaTime);
     }
 
     void UpdateLook()
     {
-        look.x += Input.GetAxis("Mouse X") * mouseSensitivity.x;
-        look.y += Input.GetAxis("Mouse Y") * mouseSensitivity.y;
+        var lookInput = lookAction.ReadValue<Vector2>();
+        look.x += lookInput.x * mouseSensitivity;
+        look.y += lookInput.y * mouseSensitivity;
 
         look.y = Mathf.Clamp(look.y, -89f, 89f);
 
