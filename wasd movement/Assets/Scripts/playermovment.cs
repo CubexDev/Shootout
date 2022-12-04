@@ -9,10 +9,12 @@ public class playermovment : NetworkBehaviour
 {
     [SerializeField] float movementSpeed = 5f;
     [SerializeField] float jumpSpeed = 5f;
+    [SerializeField] float prejumpTime = 0.1f;
     [SerializeField] float mass = 1f;
     [SerializeField] float acceleration = 20f;
     
     public bool isGrounded => controller.isGrounded;
+    float prejumpTimer = 0;
 
     public event Action OnBeforeMove; //not used yet
     internal float movementSpeedMulitplier; //not used yet
@@ -40,6 +42,7 @@ public class playermovment : NetworkBehaviour
         if (IsOwner) //ist dieses GameObjekt das zu steuernde
         {
             UpdateMovement();
+            UpdatePrejump();
             if (Manager.Instance.gamestate == Manager.GameState.Game)
             {
                 UpdateJump();
@@ -48,6 +51,24 @@ public class playermovment : NetworkBehaviour
 
         UpdateGround(); //not used yet
         UpdateGravity();
+    }
+
+    void UpdatePrejump()
+    {
+        if (!isGrounded)
+        {
+            if (jumpAction.IsPressed() && Manager.Instance.gamestate == Manager.GameState.Game)
+                prejumpTimer = 0;
+            else if (prejumpTimer >= 0)
+                prejumpTimer += Time.deltaTime;
+        } else if (prejumpTimer >= 0 && prejumpTimer <= prejumpTime)
+        {
+            if(!jumpAction.IsPressed()) //damit nicht doppelt ausgeführt wird
+            {
+                velocity.y = jumpSpeed;
+                prejumpTimer = -1f;
+            }
+        }
     }
 
     private void UpdateJump()
