@@ -9,9 +9,13 @@ public class Manager : MonoBehaviour
     public static Manager Instance;
     public enum GameState { Lobby, Game, PausedGame}
     public GameState gamestate { get; private set; }
+    public string ownIP { get; private set; } = "";
+    public bool isHost { get; private set; } = false;
 
     public PlayerInput playerInput;
     public ConnectionManager connectionManager;
+
+    public GameObject uiCam;
 
     public Action OnLobbyoppened;
     public Action OnGamestarted;
@@ -23,7 +27,6 @@ public class Manager : MonoBehaviour
             Instance = this;
         else
             Destroy(Instance);
-        connectionManager = GetComponent<ConnectionManager>();
     }
 
     public void connectAsClient(string shortIP)
@@ -35,7 +38,8 @@ public class Manager : MonoBehaviour
 
     public void startHost()
     {
-        connectionManager.connectAsHost();
+        isHost = true;
+        ownIP = connectionManager.connectAsHost();
         UIManager.Instance.gameStarting();
         startGame();
     }
@@ -46,6 +50,7 @@ public class Manager : MonoBehaviour
         playerInput.SwitchCurrentActionMap("Player");
         Cursor.lockState = CursorLockMode.Locked;
         UIGameManager.Instance.activate();
+        uiCam.SetActive(false);
     }
     public void stopGame()
     {

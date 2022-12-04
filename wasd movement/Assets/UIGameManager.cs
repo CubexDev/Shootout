@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class UIGameManager : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class UIGameManager : MonoBehaviour
 
     public GameObject gameScreen;
     public GameObject pauseScreen;
+    public TMP_Text lobbyCode;
+
 
     private void Awake()
     {
@@ -54,6 +57,11 @@ public class UIGameManager : MonoBehaviour
     {
         gameScreen.SetActive(true);
         escapeAction = playerInput.actions["Escape"];
+        if(Manager.Instance.isHost)
+        {
+            lobbyCode.gameObject.SetActive(true);
+            lobbyCode.text = "Your Lobbycode is: " + Manager.Instance.ownIP;
+        }
     }
 
     public void deactivate()

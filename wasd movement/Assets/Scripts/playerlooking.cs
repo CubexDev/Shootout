@@ -19,7 +19,9 @@ public class playerlooking : NetworkBehaviour
         playerInput = Manager.Instance.playerInput;
         lookAction = playerInput.actions["Look"];
 
-        switchCameraTo(cameraTransform.gameObject);
+        if(IsOwner)
+            switchCameraTo(cameraTransform.gameObject);
+        transform.position = new Vector3(7, 2, 21);
     }
 
     private void Update()
@@ -42,10 +44,10 @@ public class playerlooking : NetworkBehaviour
 
     void switchCameraTo(GameObject go)
     {
-        for (int i = 0; i < Camera.allCamerasCount; i++)
-        {
-            if (Camera.allCameras[i].gameObject != go) Destroy(Camera.allCameras[i].gameObject);
-        }
-        Cursor.lockState = CursorLockMode.Locked;
+        //for (int i = 0; i < Camera.allCamerasCount; i++)
+        //{
+        //    if (Camera.allCameras[i].gameObject != go) Destroy(Camera.allCameras[i].gameObject);
+        //}
+        go.SetActive(true);
     }
 }

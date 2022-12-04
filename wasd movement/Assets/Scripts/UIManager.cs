@@ -140,7 +140,6 @@ public class UIManager : MonoBehaviour
 
     public void connectAsClientBtn()
     {
-        continueBranch("Joining Game");
         Manager.Instance.connectAsClient(transform.GetComponentInChildren<TMP_InputField>().text);
     }
 
