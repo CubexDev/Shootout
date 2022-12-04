@@ -7,52 +7,58 @@ using System;
 
 public class playermovment : NetworkBehaviour
 {
-    [SerializeField] float mouseSensitivity = 3f;
     [SerializeField] float movementSpeed = 5f;
     [SerializeField] float jumpSpeed = 5f;
     [SerializeField] float mass = 1f;
     [SerializeField] float acceleration = 20f;
-    [SerializeField] Transform cameraTransform;
     
     public bool isGrounded => controller.isGrounded;
 
-    public event Action OnBeforeMove;
-    public event Action<bool> OnGroundStateChange;
+    public event Action OnBeforeMove; //not used yet
+    internal float movementSpeedMulitplier; //not used yet
+    public event Action<bool> OnGroundStateChange; //not used yet
+    private bool wasGrounded; //not used yet
 
-    internal float movementSpeedMulitplier;
-    
-    
     CharacterController controller;
     internal Vector3 velocity;
-    Vector2 look;
-    private bool  wasGrounded;
 
     PlayerInput playerInput;
     InputAction moveAction;
-    InputAction lookAction;
+    InputAction jumpAction;
 
-    void Awake()
-    {
-        controller = GetComponent<CharacterController>();
-        playerInput = GetComponent<PlayerInput>();
-        moveAction = playerInput.actions["move"];
-        lookAction = playerInput.actions["look"];
-    }
     void Start()
     {
-        switchCameraTo(cameraTransform.gameObject);
-        Cursor.lockState = CursorLockMode.Locked;
+        playerInput = Manager.Instance.playerInput;
+        moveAction = playerInput.actions["Move"];
+        jumpAction = playerInput.actions["Jump"];
+
+        controller = GetComponent<CharacterController>();
     }
 
     void Update()
     {
-        UpdateGround();
+        if (IsOwner) //ist dieses GameObjekt das zu steuernde
+        {
+            UpdateMovement();
+            if (Manager.Instance.gamestate == Manager.GameState.Game)
+            {
+                UpdateJump();
+            }
+        }
+
+        UpdateGround(); //not used yet
         UpdateGravity();
-        UpdateMovement();
-        UpdateLook();
     }
 
-    void UpdateGround()
+    private void UpdateJump()
+    {
+        if (jumpAction.IsPressed() && isGrounded)
+        {
+            velocity.y = jumpSpeed;
+        }
+    }
+
+    void UpdateGround()  //not used yet
     {
         if (wasGrounded != isGrounded)
         {
@@ -64,12 +70,14 @@ public class playermovment : NetworkBehaviour
     void UpdateGravity()
     {
         Vector3 gravity = Physics.gravity * mass * Time.deltaTime;
-        velocity.y = controller.isGrounded ? -1f : velocity.y + gravity.y;
+        velocity.y = controller.isGrounded ? velocity.y : velocity.y + gravity.y;
+
+        controller.Move(velocity * Time.deltaTime);
     }
     
     Vector3 GetMovementInput()
     {
-        var moveInput = moveAction.ReadValue<Vector2>();
+        Vector2 moveInput = moveAction.ReadValue<Vector2>();
         Vector3 input = new Vector3();
         input += transform.forward * moveInput.y;
         input += transform.right * moveInput.x;
@@ -78,37 +86,20 @@ public class playermovment : NetworkBehaviour
         return input;
     }
     
-    
-    
     void UpdateMovement()
     {
-        var input = GetMovementInput();
+        Vector3 input;
 
-        var factor = acceleration * Time.deltaTime;
+        if (!isGrounded) // in der luft soll er weiter fliegen
+            input = velocity;
+        else if (Manager.Instance.gamestate == Manager.GameState.Game)
+            input = GetMovementInput();
+        else
+            input = Vector3.zero;
+        
+        //ground slip
+        float factor = acceleration * Time.deltaTime;
         velocity.x = Mathf.Lerp(velocity.x, input.x, factor);
         velocity.z = Mathf.Lerp(velocity.z, input.z, factor);
-
-        controller.Move(velocity * Time.deltaTime);
-    }
-
-    void UpdateLook()
-    {
-        var lookInput = lookAction.ReadValue<Vector2>();
-        look.x += lookInput.x * mouseSensitivity;
-        look.y += lookInput.y * mouseSensitivity;
-
-        look.y = Mathf.Clamp(look.y, -89f, 89f);
-
-        cameraTransform.localRotation = Quaternion.Euler(-look.y, 0, 0);
-        transform.localRotation = Quaternion.Euler(0, look.x, 0);
-    }
-
-    void switchCameraTo(GameObject go)
-    {
-        for (int i = 0; i < Camera.allCamerasCount; i++)
-        {
-            if (Camera.allCameras[i].gameObject != go) Destroy(Camera.allCameras[i].gameObject);
-        }
-        Cursor.lockState = CursorLockMode.Locked;
     }
 }
