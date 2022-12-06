@@ -63,7 +63,7 @@ public class playermovment : NetworkBehaviour
                 prejumpTimer += Time.deltaTime;
         } else if (prejumpTimer >= 0 && prejumpTimer <= prejumpTime)
         {
-            if(!jumpAction.IsPressed()) //damit nicht doppelt ausgeführt wird
+            if(!jumpAction.IsPressed()) //damit nicht doppelt ausgefÃ¼hrt wird
             {
                 velocity.y = jumpSpeed;
                 prejumpTimer = -1f;
@@ -111,9 +111,7 @@ public class playermovment : NetworkBehaviour
     {
         Vector3 input;
 
-        if (!isGrounded) // in der luft soll er weiter fliegen
-            input = velocity;
-        else if (Manager.Instance.gamestate == Manager.GameState.Game)
+		if (Manager.Instance.gamestate == Manager.GameState.Game)
             input = GetMovementInput();
         else
             input = Vector3.zero;
