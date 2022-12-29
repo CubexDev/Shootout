@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Unity.Netcode;
 
 public class Manager : MonoBehaviour
 {
@@ -20,6 +21,8 @@ public class Manager : MonoBehaviour
     public Action OnLobbyoppened;
     public Action OnGamestarted;
     public Action OnGamepaused;
+
+    public string currentPlayerName = "";
 
     private void Awake()
     {
@@ -44,6 +47,22 @@ public class Manager : MonoBehaviour
         startGame();
     }
 
+    public void globalconnectAsClient(string longIP)
+    {
+        connectionManager.GlobalconnectToHost(longIP);
+        UIManager.Instance.gameStarting();
+        startGame();
+    }
+
+    public void globalstartHost()
+    {
+        isHost = true;
+        ownIP = connectionManager.GlobalconnectAsHost();
+        UIManager.Instance.gameStarting();
+        startGame();
+    }
+
+
     public void startGame()
     {
         gamestate = GameState.Game;
@@ -64,5 +83,15 @@ public class Manager : MonoBehaviour
         gamestate = GameState.Game;
         playerInput.SwitchCurrentActionMap("Player");
         Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    public void copyIPAdress()
+    {
+        Debug.Log("Button!");
+        GUIUtility.systemCopyBuffer = ownIP;
+        TextEditor te = new TextEditor();
+        te.text = ownIP;
+        te.SelectAll();
+        te.Copy();
     }
 }

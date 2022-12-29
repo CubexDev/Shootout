@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
@@ -20,6 +21,8 @@ public class UIManager : MonoBehaviour
     InputAction anykeyAction;
     InputAction enterAction;
 
+    public Button enterUsernameButton;
+
     private void Awake()
     {
         if(Instance == null)
@@ -33,10 +36,7 @@ public class UIManager : MonoBehaviour
         uiStack.Push(startingUI);
         triggerForUI.Add("Start Screen", new UITriggers(StartScreen));
         triggerForUI.Add("Enter Username", new UITriggers(EnterUsername));
-        //triggerForUI.Add("Lobby Screen", new UITriggers(LobbyScreen));
         triggerForUI.Add("Join a LAN Game", new UITriggers(JoinALANGame));
-        //triggerForUI.Add("Host a LAN Game", new UITriggers(gameScreenActive));
-        //triggerForUI.Add("Joining Game", new UITriggers(gameScreenActive));
 
         playerInput = Manager.Instance.playerInput;
         escapeAction = playerInput.actions["Escape"];
@@ -103,33 +103,33 @@ public class UIManager : MonoBehaviour
 
     void EnterUsername()
     {
+        string userName = transform.GetComponentInChildren<TMP_InputField>().text;
+        bool validUsername = ValidateUserInput.isUsernameValid(userName) != "";
+
         transform.GetComponentInChildren<TMP_InputField>().ActivateInputField();
         transform.GetComponentInChildren<TMP_InputField>().Select();
-        if (enterAction.IsPressed())
+        enterUsernameButton.interactable = validUsername;
+
+        if (enterAction.IsPressed() && validUsername)
+        {
+            EnterUsernameBtn();
+        }
+    }
+
+    public void EnterUsernameBtn()
+    {
+        string userName = transform.GetComponentInChildren<TMP_InputField>().text;
+        string validUsername = ValidateUserInput.isUsernameValid(userName);
+        if(validUsername != "")
         {
             //settings.setUsername(transform.GetComponentInChildren<TMP_InputField>().text);
+            Manager.Instance.currentPlayerName = validUsername;
             continueBranch("Lobby Screen");
         }
     }
 
-    //void LobbyScreen()
-    //{
-    //    if (gameScreen.activeSelf)
-    //    {
-    //        gameScreen.SetActive(false);
-    //        Application.Quit();
-    //        //GetComponent<ConnectionManager>().disconnect();
-    //    }
-    //}
-
     void JoinALANGame()
     {
-        //if (gameScreen.activeSelf)
-        //{ 
-        //    gameScreen.SetActive(false);
-        //    Application.Quit();
-        //    //GetComponent<ConnectionManager>().disconnect();
-        //}
         transform.GetComponentInChildren<TMP_InputField>().ActivateInputField();
         transform.GetComponentInChildren<TMP_InputField>().Select();
         if (enterAction.IsPressed())
@@ -142,19 +142,6 @@ public class UIManager : MonoBehaviour
     {
         Manager.Instance.connectAsClient(transform.GetComponentInChildren<TMP_InputField>().text);
     }
-
-    //void gameScreenActive()
-    //{
-    //    if (!gameScreen.activeSelf)
-    //    {
-    //        gameScreen.SetActive(true);
-    //        if (uiStack.Peek().name == "Host a LAN Game")
-    //        {
-    //            GetComponent<ConnectionManager>().connectAsHost();
-    //            Manager.Instance.startGame();
-    //        }
-    //    }
-    //}
 
     public void gameStarting()
     {

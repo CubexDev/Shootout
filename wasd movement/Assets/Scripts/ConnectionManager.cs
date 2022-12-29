@@ -4,81 +4,54 @@ using UnityEngine;
 using Unity.Netcode;
 using System.Net;
 using System.Net.Sockets;
+using System.Net.NetworkInformation;
 using TMPro;
 using Unity.Netcode.Transports.UTP;
 
 public class ConnectionManager : MonoBehaviour
 {
     public NetworkManager networkManager;
-    /*public GameObject connectionTypePanel;
-    public GameObject connectAsClientPanel;
-    public GameObject connectedAsHostPanel;
-    public TMP_Text lobbycodeText;
-    public TMP_InputField lobbycodeField;*/
 
+    private void Awake()
+    {
+        Debug.Log(getLocalIPAdress(6));
+    }
 
-    //public void connectAsHost()
-    //{
-    //    if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
-    //        return;
-    //    networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getLocalIPAdress();
-    //    networkManager.StartHost();
-    //    connectionTypePanel.SetActive(false);
-    //    connectedAsHostPanel.SetActive(true);
-    //    lobbycodeText.text = "Your Lobbycode is: " + getIPv4(getLocalIPAdress())[1];
-    //}
-
-    //public void startConnectionAsClient()
-    //{
-    //    if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
-    //        return;
-    //    connectionTypePanel.SetActive(false);
-    //    connectAsClientPanel.SetActive(true);
-    //}
-
-    //public void connectToHost()
-    //{
-    //    if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
-    //        return;
-    //    networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getIPv4(getLocalIPAdress())[0] + lobbycodeField.text;
-    //    Debug.Log(getIPv4(getLocalIPAdress())[0] + lobbycodeField.text);
-    //    networkManager.StartClient();
-    //    connectAsClientPanel.SetActive(false);
-    //}
-
-    public string connectAsHost(ushort port)
+    public string connectAsHost(ushort port = 8009)
     {
         if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
             return "";
-        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getLocalIPAdress();
+        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getLocalIPAdress(4);
         networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
         networkManager.StartHost();
-        return getIPv4(getLocalIPAdress())[1]; // returns short ip
+        return getIPv4(getLocalIPAdress(4))[1]; // returns short ip
     }
 
-    public string connectAsHost()
-    {
-        if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
-            return "";
-        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getLocalIPAdress();
-        networkManager.StartHost();
-        return getIPv4(getLocalIPAdress())[1]; // returns short ip
-    }
-
-    public void connectToHost(string shortIP, ushort port)
+    public void connectToHost(string shortIP, ushort port = 8009)
     {
         if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
             return;
-        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getIPv4(getLocalIPAdress())[0] + shortIP;
+        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getIPv4(getLocalIPAdress(4))[0] + shortIP;
         networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
         networkManager.StartClient();
     }
 
-    public void connectToHost(string shortIP)
+    public string GlobalconnectAsHost(ushort port = 8009)
+    {
+        if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
+            return "";
+        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getLocalIPAdress(6);
+        networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
+        networkManager.StartHost();
+        return getLocalIPAdress(6); // returns long ip
+    }
+
+    public void GlobalconnectToHost(string longIP6, ushort port = 8009)
     {
         if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
             return;
-        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getIPv4(getLocalIPAdress())[0] + shortIP;
+        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getIPv4(getLocalIPAdress(4))[0] + longIP6;
+        networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
         networkManager.StartClient();
     }
 
@@ -90,12 +63,12 @@ public class ConnectionManager : MonoBehaviour
         //    networkManager.Shutdown();//wenn richtig
     }
 
-    string getLocalIPAdress()
+    string getLocalIPAdress(int addressFamily)
     {
         var host = Dns.GetHostEntry(Dns.GetHostName());
         foreach (var ip in host.AddressList)
         {
-            if (ip.AddressFamily == AddressFamily.InterNetwork)
+            if (ip.AddressFamily == (addressFamily == 4 ? AddressFamily.InterNetwork : AddressFamily.InterNetworkV6))
             {
                 return ip.ToString();
             }
@@ -120,4 +93,5 @@ public class ConnectionManager : MonoBehaviour
         }
         return new string[] { charedString, lastDigits};
     }
+
 }

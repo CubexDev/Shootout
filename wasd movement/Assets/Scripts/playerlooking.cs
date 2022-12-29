@@ -3,34 +3,36 @@ using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
+using TMPro;
 
 public class playerlooking : NetworkBehaviour
 {
     [SerializeField] float mouseSensitivity = 3f;
-    [SerializeField] Transform cameraTransform;
+    public Transform cameraTransform;
 
     PlayerInput playerInput;
     InputAction lookAction;
 
     Vector2 look;
 
+
     void Start()
     {
         playerInput = Manager.Instance.playerInput;
         lookAction = playerInput.actions["Look"];
-
-        if(IsOwner)
+        if (IsOwner)
             switchCameraTo(cameraTransform.gameObject);
-        transform.position = new Vector3(7, 2, 21);
     }
 
     private void Update()
     {
         if (IsOwner) //ist dieses GameObjekt das zu steuernde
-            UpdateLook();
+        {
+            updateLook();
+        }
     }
 
-    void UpdateLook()
+    void updateLook()
     {
         var lookInput = lookAction.ReadValue<Vector2>();
         look.x += lookInput.x * mouseSensitivity;

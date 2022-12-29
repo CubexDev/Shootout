@@ -15,6 +15,10 @@ public class UIGameManager : MonoBehaviour
     public GameObject pauseScreen;
     public TMP_Text lobbyCode;
 
+    public TMP_Text killsText;
+    public TMP_Text DeathsText;
+    public GameObject Hitmarker;
+
 
     private void Awake()
     {
@@ -28,6 +32,7 @@ public class UIGameManager : MonoBehaviour
     {
         playerInput = Manager.Instance.playerInput;
         escapeAction = playerInput.actions["Escape"];
+        Hitmarker.SetActive(false);
     }
 
     private void Update()
@@ -67,5 +72,23 @@ public class UIGameManager : MonoBehaviour
     public void deactivate()
     {
         gameScreen.SetActive(false);
+    }
+
+    public void shotPlayer(Playermanager ownerPlayer)
+    {
+        killsText.text = "Kills: " + ownerPlayer.kills.Value.ToString();
+        StartCoroutine(animateHitmarker());
+    }
+
+    IEnumerator animateHitmarker()
+    {
+        Hitmarker.SetActive(true);
+        yield return new WaitForSeconds(0.5f);
+        Hitmarker.SetActive(false);
+    }
+
+    public void gotShot(Playermanager ownerPlayer)
+    {
+        DeathsText.text = "Deaths: " + ownerPlayer.deaths.Value.ToString();
     }
 }

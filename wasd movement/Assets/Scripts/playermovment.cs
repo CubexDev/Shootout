@@ -11,10 +11,11 @@ public class playermovment : NetworkBehaviour
     [SerializeField] float jumpSpeed = 5f;
     [SerializeField] float prejumpTime = 0.1f;
     [SerializeField] float mass = 1f;
-    [SerializeField] float acceleration = 20f;
-    
+    [SerializeField] float groundAcceleration = 20f;
+    [SerializeField] float airAccelerationAnteil = 0.5f;
+
     public bool isGrounded => controller.isGrounded;
-    float prejumpTimer = 0;
+    float prejumpTimer = -1f;
 
     public event Action OnBeforeMove; //not used yet
     internal float movementSpeedMulitplier; //not used yet
@@ -109,17 +110,14 @@ public class playermovment : NetworkBehaviour
     
     void UpdateMovement()
     {
-        Vector3 input;
+        Vector3 input = Vector3.zero;
 
-        if (!isGrounded) // in der luft soll er weiter fliegen
-            input = velocity;
-        else if (Manager.Instance.gamestate == Manager.GameState.Game)
+        if (Manager.Instance.gamestate == Manager.GameState.Game)
             input = GetMovementInput();
-        else
-            input = Vector3.zero;
         
-        //ground slip
-        float factor = acceleration * Time.deltaTime;
+        
+        //ground slip; wenn in der Luf -> nur ..% der eigentlichen beschleunigung
+        float factor = Time.deltaTime * groundAcceleration * (isGrounded ? 1 : airAccelerationAnteil);
         velocity.x = Mathf.Lerp(velocity.x, input.x, factor);
         velocity.z = Mathf.Lerp(velocity.z, input.z, factor);
     }
