@@ -64,7 +64,7 @@ public class playermovment : NetworkBehaviour
                 prejumpTimer += Time.deltaTime;
         } else if (prejumpTimer >= 0 && prejumpTimer <= prejumpTime)
         {
-            if(!jumpAction.IsPressed()) //damit nicht doppelt ausgeführt wird
+            if(!jumpAction.IsPressed()) //damit nicht doppelt ausgefÃ¼hrt wird
             {
                 velocity.y = jumpSpeed;
                 prejumpTimer = -1f;
@@ -112,10 +112,11 @@ public class playermovment : NetworkBehaviour
     {
         Vector3 input = Vector3.zero;
 
+        
         if (Manager.Instance.gamestate == Manager.GameState.Game)
             input = GetMovementInput();
-        
-        
+
+
         //ground slip; wenn in der Luf -> nur ..% der eigentlichen beschleunigung
         float factor = Time.deltaTime * groundAcceleration * (isGrounded ? 1 : airAccelerationAnteil);
         velocity.x = Mathf.Lerp(velocity.x, input.x, factor);
