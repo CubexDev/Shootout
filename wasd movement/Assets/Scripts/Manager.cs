@@ -4,13 +4,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
+using System.Windows;
+using System.Reflection;
 
 public class Manager : MonoBehaviour
 {
     public static Manager Instance;
     public enum GameState { Lobby, Game, PausedGame}
     public GameState gamestate { get; private set; }
-    public string ownIP { get; private set; } = "";
+    public string ownIP { get; private set; } = "Testtext";
     public bool isHost { get; private set; } = false;
 
     public PlayerInput playerInput;
@@ -87,11 +89,6 @@ public class Manager : MonoBehaviour
 
     public void copyIPAdress()
     {
-        Debug.Log("Button!");
         GUIUtility.systemCopyBuffer = ownIP;
-        TextEditor te = new TextEditor();
-        te.text = ownIP;
-        te.SelectAll();
-        te.Copy();
     }
 }

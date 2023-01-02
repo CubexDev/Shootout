@@ -7,50 +7,46 @@ using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using TMPro;
 using Unity.Netcode.Transports.UTP;
+using System.IO;
 
 public class ConnectionManager : MonoBehaviour
 {
     public NetworkManager networkManager;
 
-    private void Awake()
-    {
-        Debug.Log(getLocalIPAdress(6));
-    }
-
-    public string connectAsHost(ushort port = 8009)
+    public string connectAsHost(ushort port = 7777)
     {
         if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
             return "";
-        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getLocalIPAdress(4);
+        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getLocalIPAdress();
         networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
         networkManager.StartHost();
-        return getIPv4(getLocalIPAdress(4))[1]; // returns short ip
+        return getIPv4(getLocalIPAdress())[1]; // returns short ip
     }
 
-    public void connectToHost(string shortIP, ushort port = 8009)
+    public void connectToHost(string shortIP, ushort port = 7777)
     {
         if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
             return;
-        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getIPv4(getLocalIPAdress(4))[0] + shortIP;
+        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getIPv4(getLocalIPAdress())[0] + shortIP;
         networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
         networkManager.StartClient();
     }
 
-    public string GlobalconnectAsHost(ushort port = 8009)
+    public string GlobalconnectAsHost(ushort port = 7777)
     {
         if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
             return "";
-        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getLocalIPAdress(6);
+        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getGlobalIPAddress();
         networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
         networkManager.StartHost();
-        return getLocalIPAdress(6); // returns long ip
+        return getGlobalIPAddress(); // returns long ip
     }
 
-    public void GlobalconnectToHost(string longIP6, ushort port = 8009)
+    public void GlobalconnectToHost(string longIP6, ushort port = 7777)
     {
         if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
             return;
-        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getIPv4(getLocalIPAdress(4))[0] + longIP6;
+        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = longIP6;
         networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
         networkManager.StartClient();
     }
@@ -63,17 +59,34 @@ public class ConnectionManager : MonoBehaviour
         //    networkManager.Shutdown();//wenn richtig
     }
 
-    string getLocalIPAdress(int addressFamily)
+    string getLocalIPAdress()
     {
         var host = Dns.GetHostEntry(Dns.GetHostName());
         foreach (var ip in host.AddressList)
         {
-            if (ip.AddressFamily == (addressFamily == 4 ? AddressFamily.InterNetwork : AddressFamily.InterNetworkV6))
+            if (ip.AddressFamily == AddressFamily.InterNetwork)
             {
                 return ip.ToString();
             }
         }
         throw new System.Exception("No network adapters with an IPv4 address in the system!");
+    }
+
+    private string getGlobalIPAddress()
+    {
+        var url = "https://api64.ipify.org/";
+
+        WebRequest request = WebRequest.Create(url);
+        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+        Stream dataStream = response.GetResponseStream();
+
+        using StreamReader reader = new StreamReader(dataStream);
+
+        var ip = reader.ReadToEnd();
+        reader.Close();
+
+        return ip;
     }
 
     string[] getIPv4(string ip) // "192.172.68.26" => { "192.172.68." , "26" }

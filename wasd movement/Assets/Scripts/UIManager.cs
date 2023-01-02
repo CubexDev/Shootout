@@ -36,7 +36,8 @@ public class UIManager : MonoBehaviour
         uiStack.Push(startingUI);
         triggerForUI.Add("Start Screen", new UITriggers(StartScreen));
         triggerForUI.Add("Enter Username", new UITriggers(EnterUsername));
-        triggerForUI.Add("Join a LAN Game", new UITriggers(JoinALANGame));
+        triggerForUI.Add("Join a LAN Game", new UITriggers(JoinAGame));
+        triggerForUI.Add("Join a GLOBAL Game", new UITriggers(JoinAGame));
 
         playerInput = Manager.Instance.playerInput;
         escapeAction = playerInput.actions["Escape"];
@@ -128,19 +129,26 @@ public class UIManager : MonoBehaviour
         }
     }
 
-    void JoinALANGame()
+    void JoinAGame()
     {
         transform.GetComponentInChildren<TMP_InputField>().ActivateInputField();
         transform.GetComponentInChildren<TMP_InputField>().Select();
         if (enterAction.IsPressed())
         {
-            connectAsClientBtn();
+            if (uiStack.Peek().name == "Join a LAN Game")
+                connectAsClientBtn(true);
+            else if (uiStack.Peek().name == "Join a GLOBAL Game")
+                connectAsClientBtn(false);
+            else Debug.LogError("ERROR Z.141: UIManager");
         }
     }
 
-    public void connectAsClientBtn()
+    public void connectAsClientBtn(bool isLAN)
     {
-        Manager.Instance.connectAsClient(transform.GetComponentInChildren<TMP_InputField>().text);
+        if(isLAN)
+            Manager.Instance.connectAsClient(transform.GetComponentInChildren<TMP_InputField>().text);
+        else
+            Manager.Instance.globalconnectAsClient(transform.GetComponentInChildren<TMP_InputField>().text);
     }
 
     public void gameStarting()
