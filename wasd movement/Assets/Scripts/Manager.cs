@@ -12,7 +12,7 @@ public class Manager : MonoBehaviour
     public static Manager Instance;
     public enum GameState { Lobby, Game, PausedGame}
     public GameState gamestate { get; private set; }
-    public string ownIP { get; private set; } = "Testtext";
+    public string ownIP { get; private set; } = "";
     public bool isHost { get; private set; } = false;
 
     public PlayerInput playerInput;

@@ -36,7 +36,7 @@ public class ConnectionManager : MonoBehaviour
     {
         if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
             return "";
-        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getGlobalIPAddress();
+        networkManager.GetComponent<UnityTransport>().ConnectionData.Address =  getGlobalIPAddress();
         networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
         networkManager.StartHost();
         return getGlobalIPAddress(); // returns long ip
