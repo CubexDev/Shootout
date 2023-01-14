@@ -33,24 +33,30 @@ public class playershooting : NetworkBehaviour
     void checkForShoot()
     {
         if(Manager.Instance.gamestate == Manager.GameState.Game)
-            if(fireAction.WasPerformedThisFrame() && IsOwner)
-                if(_timeSinceShot >= coolDown)
+            if(IsOwner)
+            {
+                UIGameManager.Instance.coolDown(_timeSinceShot / coolDown);
+
+                if (fireAction.WasPerformedThisFrame() && _timeSinceShot >= coolDown)
                 {
                     _timeSinceShot = 0;
                     shoot();
                 }
+            }
     }
 
     void shoot()
     {
         RaycastHit hit;
-        LayerMask layerMask = LayerMask.GetMask("Enemy");
+        LayerMask layerMask = LayerMask.GetMask("Enemy", "EnemyBody");
         // Does the ray intersect any objects excluding the player layer
         if (Physics.Raycast(cam.position, cam.TransformDirection(Vector3.forward), out hit, Mathf.Infinity, layerMask))
         {
-            playerHit(hit.collider.GetComponent<playershooting>());
+            if (hit.collider.gameObject.layer == 8) //Layer: "Enemy"
+                playerHit(hit.collider.GetComponent<playershooting>());
+            else if (hit.collider.gameObject.layer == 9) //Layer: "EnemyBody"
+                playerHit(hit.collider.transform.parent.GetComponent<playershooting>());
 
-            Debug.DrawRay(cam.position, cam.TransformDirection(Vector3.forward) * hit.distance, Color.yellow);
             Debug.Log("Did Hit " + hit.collider.gameObject.name);
         }
     }
@@ -81,10 +87,6 @@ public class playershooting : NetworkBehaviour
     [ClientRpc]
     public void receiveShotClientRPC(ulong shooter, ulong victim)
     {
-        if (IsOwner)
-        {
-            Debug.Log("received Shot: ");
-            playermanager.gotHit();
-        }
+        playermanager.gotHit(); //every version of this player
     }
 }

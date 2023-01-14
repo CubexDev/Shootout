@@ -14,6 +14,8 @@ public class Playermanager : NetworkBehaviour
     public NetworkVariable<int> deaths;
 
     public TMP_Text nameLabel;
+    public GameObject body;
+    public GameObject laserPointer;
 
     public delegate void Kill(Playermanager playermanager);
     public Kill shotPlayer;
@@ -60,6 +62,7 @@ public class Playermanager : NetworkBehaviour
         if (!IsOwner)
         {
             gameObject.layer = 8;
+            body.layer = 9;
             if(playerNameString != "")
                 nameArrived(new FixedString64Bytes(""), playerNameString);
         } else
@@ -67,39 +70,13 @@ public class Playermanager : NetworkBehaviour
             _playerName.Value = new FixedString64Bytes(Manager.Instance.currentPlayerName);
             Destroy(nameLabel.gameObject);
             spawn();
-            //StartCoroutine(deleteThis());
         }
-    }
-
-    IEnumerator deleteThis()
-    {
-        yield return new WaitForSeconds(2);
-        spawn();
     }
 
     public override void OnNetworkDespawn()
     {
         PlayersManager.Instance.removePlayer(this);
         base.OnNetworkDespawn();
-    }
-
-    private void Update()
-    {
-        if(IsOwner)
-            updateLabels();
-    }
-
-
-    void updateLabels()
-    {
-        for (int i = 0; i < PlayersManager.Instance.players.Count; i++)
-        {
-            if (PlayersManager.Instance.players[i] != this)
-            {
-                Transform label = PlayersManager.Instance.players[i].nameLabel.transform;
-                label.LookAt(transform);
-            }
-        }
     }
 
     void spawn()
@@ -117,8 +94,14 @@ public class Playermanager : NetworkBehaviour
 
     public void gotHit()
     {
-        spawn();
-        deaths.Value++;
-        gotShot?.Invoke(this);
+        if (IsOwner)
+        {
+            spawn();
+            deaths.Value++;
+            gotShot?.Invoke(this);
+        }               
+        //disable body
     }
+
+    
 }

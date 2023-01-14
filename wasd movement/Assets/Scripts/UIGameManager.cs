@@ -14,12 +14,11 @@ public class UIGameManager : MonoBehaviour
 
     public GameObject gameScreen;
     public GameObject pauseScreen;
+
+    #region pausedGame
     public TMP_Text lobbyCode;
     public Button copyIP;
-
-    public TMP_Text killsText;
-    public TMP_Text DeathsText;
-    public GameObject Hitmarker;
+    #endregion
 
 
     private void Awake()
@@ -77,6 +76,13 @@ public class UIGameManager : MonoBehaviour
         gameScreen.SetActive(false);
     }
 
+    #region inGame
+
+    public TMP_Text killsText;
+    public TMP_Text DeathsText;
+    public GameObject Hitmarker;
+    public Slider fireCoolDown;
+
     public void shotPlayer(Playermanager ownerPlayer)
     {
         killsText.text = "Kills: " + ownerPlayer.kills.Value.ToString();
@@ -94,4 +100,21 @@ public class UIGameManager : MonoBehaviour
     {
         DeathsText.text = "Deaths: " + ownerPlayer.deaths.Value.ToString();
     }
+
+    public void coolDown(float value)
+    {
+        if (value >= 1)
+            fireCoolDown.gameObject.SetActive(false);
+        else if (Manager.Instance.gamestate != Manager.GameState.Lobby)
+        {
+            if (fireCoolDown.gameObject.activeSelf)
+                fireCoolDown.value = value;
+            else {
+                fireCoolDown.gameObject.SetActive(true);
+                fireCoolDown.value = value;
+            }
+        }
+    }
+
+    #endregion
 }

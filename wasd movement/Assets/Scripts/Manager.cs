@@ -32,6 +32,9 @@ public class Manager : MonoBehaviour
             Instance = this;
         else
             Destroy(Instance);
+
+        //Debug.Log("PnlineLobbies: ");
+        //OnlineLobbies.getLobbies();
     }
 
     public void connectAsClient(string shortIP)

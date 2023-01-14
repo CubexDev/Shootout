@@ -32,6 +32,26 @@ public class playerlooking : NetworkBehaviour
         }
     }
 
+    private void LateUpdate()
+    {
+        // LATE UPDATE!!
+        if (IsOwner)
+            updateLabels();
+    }
+
+
+    void updateLabels()
+    {
+        for (int i = 0; i < PlayersManager.Instance.players.Count; i++)
+        {
+            if (PlayersManager.Instance.players[i].gameObject != gameObject)
+            {
+                Transform label = PlayersManager.Instance.players[i].nameLabel.transform;
+                label.LookAt(cameraTransform);
+            }
+        }
+    }
+
     void updateLook()
     {
         var lookInput = lookAction.ReadValue<Vector2>();
@@ -50,6 +70,6 @@ public class playerlooking : NetworkBehaviour
         //{
         //    if (Camera.allCameras[i].gameObject != go) Destroy(Camera.allCameras[i].gameObject);
         //}
-        go.SetActive(true);
+        go.GetComponent<Camera>().enabled = true;
     }
 }
