@@ -15,6 +15,8 @@ public class playershooting : NetworkBehaviour
     PlayerInput playerInput;
     InputAction fireAction;
 
+    public GameObject laser;
+
     private void Start()
     {
         playerInput = Manager.Instance.playerInput;
@@ -48,7 +50,7 @@ public class playershooting : NetworkBehaviour
     void shoot()
     {
         RaycastHit hit;
-        LayerMask layerMask = LayerMask.GetMask("Enemy", "EnemyBody");
+        LayerMask layerMask = LayerMask.GetMask("Default", "Enemy", "EnemyBody");
         // Does the ray intersect any objects excluding the player layer
         if (Physics.Raycast(cam.position, cam.TransformDirection(Vector3.forward), out hit, Mathf.Infinity, layerMask))
         {
@@ -57,8 +59,20 @@ public class playershooting : NetworkBehaviour
             else if (hit.collider.gameObject.layer == 9) //Layer: "EnemyBody"
                 playerHit(hit.collider.transform.parent.GetComponent<playershooting>());
 
-            Debug.Log("Did Hit " + hit.collider.gameObject.name);
+            laserEffectServerRPC(hit.distance);
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void laserEffectServerRPC(float camDistance)
+    {
+        laserEffectClientRPC(camDistance);
+    }
+
+    [ClientRpc]
+    public void laserEffectClientRPC(float camDistance)
+    {
+        Instantiate(laser).GetComponent<LaserEffect>().InitializeLaser(cam.position, cam.rotation, camDistance, playermanager.laserPointer.transform.position);
     }
 
     void playerHit(playershooting hitPlayer)

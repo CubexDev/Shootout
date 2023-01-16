@@ -94,4 +94,9 @@ public class Manager : MonoBehaviour
     {
         GUIUtility.systemCopyBuffer = ownIP;
     }
+
+    public void QuitApp()
+    {
+        Application.Quit();
+    }
 }

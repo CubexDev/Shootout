@@ -98,8 +98,8 @@ public class UIManager : MonoBehaviour
 
     void StartScreen()
     { 
-        if (anykeyAction.IsPressed() && !escapeAction.IsPressed())
-            continueBranch("Enter Username");
+        /*if (anykeyAction.IsPressed() && !escapeAction.IsPressed())
+            continueBranch("Enter Username");*/
     }
 
     void EnterUsername()

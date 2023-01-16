@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 493837730042560284}
   - component: {fileID: 493837730042560285}
   - component: {fileID: 8636915378434776048}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
@@ -128,7 +128,7 @@ GameObject:
   - component: {fileID: -4101054997557584236}
   - component: {fileID: 6560754858307571527}
   - component: {fileID: 2061111044552577490}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -346,6 +346,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   coolDown: 0.7
+  laser: {fileID: 5238035324219025602, guid: a0fd58f5972012447b29512127220427, type: 3}
 --- !u!1 &493837731930990081
 GameObject:
   m_ObjectHideFlags: 0
@@ -358,7 +359,7 @@ GameObject:
   - component: {fileID: 493837731930990110}
   - component: {fileID: 493837731930990111}
   - component: {fileID: 6191875135727514029}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: playerbody
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -455,7 +456,7 @@ GameObject:
   - component: {fileID: 7277411099347390962}
   - component: {fileID: 4049746400364335154}
   - component: {fileID: 1745892378783689898}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: NameLabel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -682,6 +683,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: f7be60f9c35256f438aeb7507b498bed, type: 3}
       propertyPath: m_Name
       value: Laserpointer
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: f7be60f9c35256f438aeb7507b498bed, type: 3}
+      propertyPath: m_Layer
+      value: 2
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f7be60f9c35256f438aeb7507b498bed, type: 3}
