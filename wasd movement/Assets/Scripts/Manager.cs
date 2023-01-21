@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using Unity.Netcode;
 using System.Windows;
 using System.Reflection;
+using UnityEngine.SceneManagement;
 
 public class Manager : MonoBehaviour
 {
@@ -40,8 +41,7 @@ public class Manager : MonoBehaviour
     public void connectAsClient(string shortIP)
     {
         connectionManager.connectToHost(shortIP);
-        UIManager.Instance.gameStarting();
-        startGame();
+        //startGame();
     }
 
     public void startHost()
@@ -55,8 +55,7 @@ public class Manager : MonoBehaviour
     public void globalconnectAsClient(string longIP)
     {
         connectionManager.GlobalconnectToHost(longIP);
-        UIManager.Instance.gameStarting();
-        startGame();
+       // startGame();
     }
 
     public void globalstartHost()
@@ -69,8 +68,9 @@ public class Manager : MonoBehaviour
 
 
     public void startGame()
-    {
+    { 
         gamestate = GameState.Game;
+        UIManager.Instance.gameStarting();
         playerInput.SwitchCurrentActionMap("Player");
         Cursor.lockState = CursorLockMode.Locked;
         UIGameManager.Instance.activate();
@@ -82,12 +82,33 @@ public class Manager : MonoBehaviour
         playerInput.SwitchCurrentActionMap("UI");
         Cursor.lockState = CursorLockMode.None;
     }
-
     public void continueGame()
     {
         gamestate = GameState.Game;
         playerInput.SwitchCurrentActionMap("Player");
         Cursor.lockState = CursorLockMode.Locked;
+    }
+
+    public void leaveGame()
+    {
+        gamestate = GameState.Lobby;
+        playerInput.SwitchCurrentActionMap("UI");
+        Cursor.lockState = CursorLockMode.None;
+        UIGameManager.Instance.deactivate();
+        UIManager.Instance.gameLeft();
+        uiCam.SetActive(true);
+        connectionManager.stopNetwork();
+    }
+
+    public void connectionLost()
+    {
+        gamestate = GameState.Lobby;
+        playerInput.SwitchCurrentActionMap("UI");
+        Cursor.lockState = CursorLockMode.None;
+        UIGameManager.Instance.deactivate();
+        UIManager.Instance.connectionLost();
+        uiCam.SetActive(true);
+        connectionManager.stopNetwork();
     }
 
     public void copyIPAdress()

@@ -22,6 +22,8 @@ public class PlayersManager : NetworkBehaviour
         else
             Destroy(Instance);
 
+
+
         //playerNames = new NetworkList<FixedString64Bytes>
         //(null, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
         //playerKills = new NetworkList<int>();
@@ -33,11 +35,9 @@ public class PlayersManager : NetworkBehaviour
         players.Add(player);
         Debug.Log(player.playerNameString + " joined the Game");
     }
-    public string addPlayerHostSide(Playermanager player, string name)
+    public string addPlayerOwnerSide(Playermanager player, string pName)
     {
-        string newName = name;
-        if (IsHost || IsServer)
-            newName = getUniqueName(name);
+        string newName = getUniqueName(pName);
         players.Add(player);
         Debug.Log(player.playerNameString + "Joined the Game");
         return newName;
@@ -49,27 +49,37 @@ public class PlayersManager : NetworkBehaviour
         Debug.Log(player.playerNameString + " left the Game");
     }
 
-    string getUniqueName(string name)
+    string getUniqueName(string pName)
     {
-        Playermanager findName = getPlayerByName(name);
+        Playermanager findName = getPlayerByName(pName);
         int counter = 0;
         while (findName != null)
         {
-            findName = getPlayerByName(name + " #" + counter);
+            findName = getPlayerByName(pName + " #" + counter);
             counter++;
         }
-        string newName = name;
+        string newName = pName;
         if (counter != 0)
-            newName = name + " #" + counter;
+            newName = pName + " #" + counter;
         return newName;
     }
 
-    Playermanager getPlayerByName(string name)
+    Playermanager getPlayerByName(string pName)
     {
         for (int i = 0; i < players.Count; i++)
         {
-            if (players[i].playerNameString == name)
+            if (players[i].playerNameString == pName)
                 return players[i];
+        }
+        return null;
+    }
+
+    public static Playermanager getPlayerByNetworkId(ulong behaviourId)
+    {
+        for (int i = 0; i < Instance.players.Count; i++)
+        {
+            if (Instance.players[i].NetworkBehaviourId == behaviourId)
+                return Instance.players[i];
         }
         return null;
     }

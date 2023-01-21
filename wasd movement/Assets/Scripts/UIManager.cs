@@ -34,7 +34,6 @@ public class UIManager : MonoBehaviour
     private void Start()
     {
         uiStack.Push(startingUI);
-        triggerForUI.Add("Start Screen", new UITriggers(StartScreen));
         triggerForUI.Add("Enter Username", new UITriggers(EnterUsername));
         triggerForUI.Add("Join a LAN Game", new UITriggers(JoinAGame));
         triggerForUI.Add("Join a GLOBAL Game", new UITriggers(JoinAGame));
@@ -56,6 +55,7 @@ public class UIManager : MonoBehaviour
             revertBranch();
     }
 
+    #region treeMovement
     public void continueBranch(GameObject nextUI)
     {
         if (uiStack.Peek().transform.Find("UI") != null)
@@ -94,14 +94,9 @@ public class UIManager : MonoBehaviour
         if (uiStack.Peek().transform.Find("UI") != null)
             uiStack.Peek().transform.Find("UI").gameObject.SetActive(true);
     }
+    #endregion
 
-
-    void StartScreen()
-    { 
-        /*if (anykeyAction.IsPressed() && !escapeAction.IsPressed())
-            continueBranch("Enter Username");*/
-    }
-
+    #region checkForEvents
     void EnterUsername()
     {
         string userName = transform.GetComponentInChildren<TMP_InputField>().text;
@@ -145,16 +140,44 @@ public class UIManager : MonoBehaviour
 
     public void connectAsClientBtn(bool isLAN)
     {
-        if(isLAN)
-            Manager.Instance.connectAsClient(transform.GetComponentInChildren<TMP_InputField>().text);
+        string ipTxt = transform.GetComponentInChildren<TMP_InputField>().text;
+        revertBranch();
+        continueBranch("Connecting");
+        if (isLAN)
+            Manager.Instance.connectAsClient(ipTxt);
         else
-            Manager.Instance.globalconnectAsClient(transform.GetComponentInChildren<TMP_InputField>().text);
+            Manager.Instance.globalconnectAsClient(ipTxt);
+    }
+    #endregion
+
+
+    public void connectionFailed() //when trying to connect
+    {
+        if(uiStack.Peek().name != "Lobby Screen")
+            revertBranch();
+        continueBranch("Couldnt connect");
     }
 
     public void gameStarting()
     {
+
         while (uiStack.Peek().name != "Lobby Screen")
             revertBranch();
         startingUI.SetActive(false);
+    }
+
+    public void gameLeft()
+    {
+        startingUI.SetActive(true);
+        while (uiStack.Peek().name != "Lobby Screen")
+            revertBranch();
+    }
+
+    public void connectionLost() //when already connected
+    {
+        startingUI.SetActive(true);
+        if (uiStack.Peek().name != "Lobby Screen")
+            revertBranch();
+        continueBranch("You Got Disconnected");
     }
 }

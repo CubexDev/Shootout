@@ -8,16 +8,22 @@ using TMPro;
 public class UIGameManager : MonoBehaviour
 {
     public static UIGameManager Instance;
+    public bool _isDead => Playermanager.ownerPlayer.isDead.Value;
 
     PlayerInput playerInput;
     InputAction escapeAction;
+    InputAction spaceAction;
 
     public GameObject gameScreen;
-    public GameObject pauseScreen;
+    public GameObject gameUI;
+    public GameObject pauseUI;
+    public GameObject deathUI;
 
     #region pausedGame
     public TMP_Text lobbyCode;
     public Button copyIP;
+
+    public TMP_Text killedByField;
     #endregion
 
 
@@ -32,7 +38,6 @@ public class UIGameManager : MonoBehaviour
     private void Start()
     {
         playerInput = Manager.Instance.playerInput;
-        escapeAction = playerInput.actions["Escape"];
         Hitmarker.SetActive(false);
     }
 
@@ -43,26 +48,61 @@ public class UIGameManager : MonoBehaviour
 
     void checkEscape()
     {
-        if (!escapeAction.WasPerformedThisFrame())
-            return;
         if (Manager.Instance.gamestate == Manager.GameState.Game)
         {
-            Manager.Instance.stopGame();
-            escapeAction = playerInput.actions["Escape"];
-            pauseScreen.SetActive(true);
+            if (escapeAction.WasPerformedThisFrame())
+            {
+                Manager.Instance.stopGame();
+                pauseUIOn();
+            }
         }
-        else
+        else if (Manager.Instance.gamestate == Manager.GameState.PausedGame)
         {
-            Manager.Instance.continueGame();
-            escapeAction = playerInput.actions["Escape"];
-            pauseScreen.SetActive(false);
+            if (escapeAction.WasPerformedThisFrame() && !_isDead)
+            {
+                Manager.Instance.continueGame();
+                gameUIOn();
+            } else if(_isDead)
+            {
+                if (spaceAction.WasPerformedThisFrame())
+                {
+                    Manager.Instance.continueGame();
+                    gameUIOn();
+                    Playermanager.ownerPlayer.respawn();
+                }
+            }
         }
+    }
+
+    void gameUIOn()
+    {
+        gameUI.SetActive(true);
+        pauseUI.SetActive(false);
+        deathUI.SetActive(false);
+        escapeAction = playerInput.actions["Escape"];
+    }
+
+    void pauseUIOn()
+    {
+        gameUI.SetActive(true);
+        pauseUI.SetActive(true);
+        deathUI.SetActive(false);
+        escapeAction = playerInput.actions["Escape"];
+    }
+
+    void deathUIOn()
+    {
+        gameUI.SetActive(true);
+        pauseUI.SetActive(false);
+        deathUI.SetActive(true);
+        escapeAction = playerInput.actions["Escape"];
+        spaceAction = playerInput.actions["Space"];
     }
 
     public void activate()
     {
         gameScreen.SetActive(true);
-        escapeAction = playerInput.actions["Escape"];
+        gameUIOn();
         if(Manager.Instance.isHost)
         {
             copyIP.gameObject.SetActive(true);
@@ -83,12 +123,11 @@ public class UIGameManager : MonoBehaviour
     public GameObject Hitmarker;
     public Slider fireCoolDown;
 
-    public void shotPlayer(Playermanager ownerPlayer)
+    public void shotPlayer(Playermanager ownerPlayer, string affectedPlayer)
     {
         killsText.text = "Kills: " + ownerPlayer.kills.Value.ToString();
         StartCoroutine(animateHitmarker());
     }
-
     IEnumerator animateHitmarker()
     {
         Hitmarker.SetActive(true);
@@ -96,9 +135,11 @@ public class UIGameManager : MonoBehaviour
         Hitmarker.SetActive(false);
     }
 
-    public void gotShot(Playermanager ownerPlayer)
+    public void gotShot(Playermanager ownerPlayer, string shooterPlayer)
     {
         DeathsText.text = "Deaths: " + ownerPlayer.deaths.Value.ToString();
+        killedByField.text = shooterPlayer;
+        deathUIOn();
     }
 
     public void coolDown(float value)
@@ -115,6 +156,5 @@ public class UIGameManager : MonoBehaviour
             }
         }
     }
-
     #endregion
 }

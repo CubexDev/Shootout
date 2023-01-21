@@ -10,6 +10,7 @@ public class playershooting : NetworkBehaviour
     float _timeSinceShot;
 
     Playermanager playermanager; // playermaner of this gameobject
+    public bool _isDead => GetComponent<Playermanager>().isDead.Value;
     Transform cam;
 
     PlayerInput playerInput;
@@ -34,7 +35,7 @@ public class playershooting : NetworkBehaviour
 
     void checkForShoot()
     {
-        if(Manager.Instance.gamestate == Manager.GameState.Game)
+        if(Manager.Instance.gamestate == Manager.GameState.Game && !_isDead)
             if(IsOwner)
             {
                 UIGameManager.Instance.coolDown(_timeSinceShot / coolDown);
@@ -81,26 +82,21 @@ public class playershooting : NetworkBehaviour
             return;
 
         //local display of a successful shot
-        displayHit();
+        playermanager.shotOtherPlayer(hitPlayer.name);
 
         //msgToServer; global message about shot
-        hitPlayer.playerShotServerRPC(OwnerClientId, hitPlayer.OwnerClientId);
-    }
-
-    void displayHit()
-    {
-        playermanager.shotOtherPlayer();
+        hitPlayer.playerShotServerRPC(name, hitPlayer.name);
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void playerShotServerRPC(ulong shooter, ulong victim)
+    public void playerShotServerRPC(string shooter, string victim)
     {
         receiveShotClientRPC(shooter, victim);
     }
 
     [ClientRpc]
-    public void receiveShotClientRPC(ulong shooter, ulong victim)
+    public void receiveShotClientRPC(string shooter, string victim)
     {
-        playermanager.gotHit(); //every version of this player
+        playermanager.gotHit(shooter, victim); //every version of this player
     }
 }

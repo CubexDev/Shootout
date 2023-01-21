@@ -15,6 +15,7 @@ public class playermovment : NetworkBehaviour
     [SerializeField] float airAccelerationAnteil = 0.5f;
 
     public bool isGrounded => controller.isGrounded;
+    public bool _isDead => Playermanager.ownerPlayer.isDead.Value;
     float prejumpTimer = -1f;
 
     public event Action OnBeforeMove; //not used yet
@@ -40,7 +41,7 @@ public class playermovment : NetworkBehaviour
 
     void Update()
     {
-        if (IsOwner) //ist dieses GameObjekt das zu steuernde
+        if (IsOwner && !_isDead) //ist dieses GameObjekt das zu steuernde
         {
             UpdateMovement();
             UpdatePrejump();
@@ -49,9 +50,9 @@ public class playermovment : NetworkBehaviour
                 UpdateJump();
             }
         }
+        if(!_isDead) UpdateGravity();
 
-        UpdateGround(); //not used yet
-        UpdateGravity();
+        //UpdateGround(); //not used yet
     }
 
     void UpdatePrejump()

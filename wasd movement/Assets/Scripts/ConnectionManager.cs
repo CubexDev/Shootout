@@ -4,12 +4,12 @@ using UnityEngine;
 using Unity.Netcode;
 using System.Net;
 using System.Net.Sockets;
-using System.Net.NetworkInformation;
+using System;
 using TMPro;
 using Unity.Netcode.Transports.UTP;
 using System.IO;
 
-public class ConnectionManager : MonoBehaviour
+public class ConnectionManager : NetworkBehaviour
 {
     public NetworkManager networkManager;
 
@@ -30,13 +30,14 @@ public class ConnectionManager : MonoBehaviour
         networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getIPv4(getLocalIPAdress())[0] + shortIP;
         networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
         networkManager.StartClient();
+        StartCoroutine(waitForConnection());
     }
 
     public string GlobalconnectAsHost(ushort port = 7777)
     {
         if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
             return "";
-        networkManager.GetComponent<UnityTransport>().ConnectionData.Address =  getGlobalIPAddress();
+        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getGlobalIPAddress();
         networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
         networkManager.StartHost();
         return getGlobalIPAddress(); // returns long ip
@@ -49,6 +50,55 @@ public class ConnectionManager : MonoBehaviour
         networkManager.GetComponent<UnityTransport>().ConnectionData.Address = longIP6;
         networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
         networkManager.StartClient();
+        StartCoroutine(waitForConnection());
+    }
+
+    IEnumerator waitForConnection()
+    {
+        float timer = 0;
+        while (timer < 5)
+        {
+            timer += Time.deltaTime;
+            if (networkManager.IsConnectedClient)
+            {
+                Manager.Instance.startGame();
+                break;
+            }
+            yield return null;
+        }
+        if (!networkManager.IsConnectedClient)
+        {
+            stopNetwork();
+            UIManager.Instance.connectionFailed();
+        }
+    }
+
+    public void stopNetwork()
+    {
+        networkManager.Shutdown();
+    }
+
+    //IEnumerator isConnected()
+    //{
+
+    //    if(!networkManager.IsConnectedClient)
+    //}
+
+    private void OnConnectedToServer()
+    {
+        //Debug.Log("connected");
+        //Manager.Instance.startGame();
+    }
+
+    private void OnFailedToConnect()
+    {
+        //UIManager.Instance.connectionFailed();
+    }
+    
+    private void OnDisconnectedFromServer()
+    {
+        //change
+        //UIManager.Instance.connectionFailed();
     }
 
     public void disconnect()
@@ -74,19 +124,26 @@ public class ConnectionManager : MonoBehaviour
 
     private string getGlobalIPAddress()
     {
-        var url = "https://api64.ipify.org/";
+        try
+        {
+            var url = "https://api64.ipify.org/";
 
-        WebRequest request = WebRequest.Create(url);
-        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            WebRequest request = WebRequest.Create(url);
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
 
-        Stream dataStream = response.GetResponseStream();
+            Stream dataStream = response.GetResponseStream();
 
-        using StreamReader reader = new StreamReader(dataStream);
+            using StreamReader reader = new StreamReader(dataStream);
 
-        var ip = reader.ReadToEnd();
-        reader.Close();
+            var ip = reader.ReadToEnd();
+            reader.Close();
 
-        return ip;
+            return ip;
+        } catch(Exception e)
+        {
+            //exit
+            return "";
+        }
     }
 
     string[] getIPv4(string ip) // "192.172.68.26" => { "192.172.68." , "26" }
