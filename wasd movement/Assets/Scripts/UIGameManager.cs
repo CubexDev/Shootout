@@ -23,6 +23,9 @@ public class UIGameManager : MonoBehaviour
     public TMP_Text lobbyCode;
     public Button copyIP;
 
+    public Transform playerListPanel;
+    public GameObject playerRowPrefab;
+
     public TMP_Text killedByField;
     #endregion
 
@@ -103,12 +106,9 @@ public class UIGameManager : MonoBehaviour
     {
         gameScreen.SetActive(true);
         gameUIOn();
-        if(Manager.Instance.isHost)
-        {
-            copyIP.gameObject.SetActive(true);
-            lobbyCode.gameObject.SetActive(true);
-            lobbyCode.text = "Your Lobbycode is: " + Manager.Instance.ownIP;
-        }
+        copyIP.gameObject.SetActive(true);
+        lobbyCode.gameObject.SetActive(true);
+        lobbyCode.text = "Your Lobbycode is: " + Manager.Instance.ownIP;
     }
 
     public void deactivate()
@@ -155,6 +155,16 @@ public class UIGameManager : MonoBehaviour
                 fireCoolDown.value = value;
             }
         }
+    }
+
+    public void addNewPlayer(Playermanager pM)
+    {
+        Instantiate(playerRowPrefab, playerListPanel).GetComponent<playerListRow>().setPlayer(pM);
+    }
+
+    public void removePlayer(Playermanager pM)
+    {
+        playerListRow.removePlayer(pM);
     }
     #endregion
 }

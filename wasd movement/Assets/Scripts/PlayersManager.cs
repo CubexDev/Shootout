@@ -34,11 +34,13 @@ public class PlayersManager : NetworkBehaviour
     {
         players.Add(player);
         Debug.Log(player.playerNameString + " joined the Game");
+        UIGameManager.Instance.addNewPlayer(player);
     }
     public string addPlayerOwnerSide(Playermanager player, string pName)
     {
         string newName = getUniqueName(pName);
         players.Add(player);
+        UIGameManager.Instance.addNewPlayer(player);
         Debug.Log(player.playerNameString + "Joined the Game");
         return newName;
     }
@@ -46,6 +48,7 @@ public class PlayersManager : NetworkBehaviour
     public void removePlayer(Playermanager player)
     {
         players.Remove(player);
+        UIGameManager.Instance.removePlayer(player);
         Debug.Log(player.playerNameString + " left the Game");
     }
 
@@ -55,8 +58,8 @@ public class PlayersManager : NetworkBehaviour
         int counter = 0;
         while (findName != null)
         {
-            findName = getPlayerByName(pName + " #" + counter);
             counter++;
+            findName = getPlayerByName(pName + " #" + counter);
         }
         string newName = pName;
         if (counter != 0)
@@ -68,7 +71,7 @@ public class PlayersManager : NetworkBehaviour
     {
         for (int i = 0; i < players.Count; i++)
         {
-            if (players[i].playerNameString == pName)
+            if (players[i].name == pName)
                 return players[i];
         }
         return null;

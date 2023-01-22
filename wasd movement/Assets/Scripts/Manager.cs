@@ -11,7 +11,7 @@ using UnityEngine.SceneManagement;
 public class Manager : MonoBehaviour
 {
     public static Manager Instance;
-    public enum GameState { Lobby, Game, PausedGame}
+    public enum GameState { Lobby, Game, PausedGame, Settings}
     public GameState gamestate { get; private set; }
     public string ownIP { get; private set; } = "";
     public bool isHost { get; private set; } = false;
@@ -40,7 +40,7 @@ public class Manager : MonoBehaviour
 
     public void connectAsClient(string shortIP)
     {
-        connectionManager.connectToHost(shortIP);
+        ownIP = connectionManager.connectToHost(shortIP);
         //startGame();
     }
 
@@ -54,7 +54,7 @@ public class Manager : MonoBehaviour
 
     public void globalconnectAsClient(string longIP)
     {
-        connectionManager.GlobalconnectToHost(longIP);
+        ownIP = connectionManager.GlobalconnectToHost(longIP);
        // startGame();
     }
 

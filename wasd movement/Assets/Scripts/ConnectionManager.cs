@@ -23,14 +23,15 @@ public class ConnectionManager : NetworkBehaviour
         return getIPv4(getLocalIPAdress())[1]; // returns short ip
     }
 
-    public void connectToHost(string shortIP, ushort port = 7777)
+    public string connectToHost(string shortIP, ushort port = 7777)
     {
         if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
-            return;
+            return "";
         networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getIPv4(getLocalIPAdress())[0] + shortIP;
         networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
         networkManager.StartClient();
         StartCoroutine(waitForConnection());
+        return shortIP;
     }
 
     public string GlobalconnectAsHost(ushort port = 7777)
@@ -43,14 +44,15 @@ public class ConnectionManager : NetworkBehaviour
         return getGlobalIPAddress(); // returns long ip
     }
 
-    public void GlobalconnectToHost(string longIP6, ushort port = 7777)
+    public string GlobalconnectToHost(string longIP6, ushort port = 7777)
     {
         if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
-            return;
+            return "";
         networkManager.GetComponent<UnityTransport>().ConnectionData.Address = longIP6;
         networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
         networkManager.StartClient();
         StartCoroutine(waitForConnection());
+        return longIP6;
     }
 
     IEnumerator waitForConnection()

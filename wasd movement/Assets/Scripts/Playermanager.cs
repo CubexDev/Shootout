@@ -49,14 +49,21 @@ public class Playermanager : NetworkBehaviour
     {
         if(previousName.Value.ToString() == "")
         {
-            if (IsOwner) _playerName.Value = PlayersManager.Instance.addPlayerOwnerSide(this, newName.Value.ToString());
-            else PlayersManager.Instance.addPlayerClientSide(this);
-
-            gameObject.name = newName.Value.ToString();
-            if(!IsOwner) nameLabel.text = newName.Value.ToString();
+            if (IsOwner)
+            {
+                string changedName = PlayersManager.Instance.addPlayerOwnerSide(this, newName.Value.ToString());
+                _playerName.Value = changedName;
+                name = changedName;
+            } else
+            {
+                PlayersManager.Instance.addPlayerClientSide(this);
+                name = newName.Value.ToString();
+                nameLabel.text = newName.Value.ToString();
+            }
         } else if(previousName != newName) //name changed midgame
         {
-            gameObject.name = newName.Value.ToString();
+            Debug.Log("f");
+            name = newName.Value.ToString();
             if (!IsOwner) nameLabel.text = newName.Value.ToString();
         }
     }
