@@ -12,14 +12,45 @@ using System.IO;
 public class ConnectionManager : NetworkBehaviour
 {
     public NetworkManager networkManager;
+    public NetworkVariable<int> chosenMap;
 
-    public string connectAsHost(ushort port = 7777)
+    private void Awake()
+    {
+        chosenMap = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+        //chosenMap.OnValueChanged += mapChoiceArrived;
+    }
+
+    //void mapChoiceArrived(int previousValue, int newValue)
+    //{
+    //    Manager.Instance.getMap();
+    //    Spawnlocation.convertCollToBox(newValue == 1 ? Manager.Instance.oldMap : Manager.Instance.newMap);
+    //}
+
+    IEnumerator waitForChosenMap()
+    {
+        while(chosenMap.Value == 0) ;
+            yield return null;
+
+        Manager.Instance.getMap();
+        if(chosenMap.Value == 1)
+            Spawnlocation.convertCollToBox(Manager.Instance.oldMap);
+        else if(chosenMap.Value == 2)
+            Spawnlocation.convertCollToBox(Manager.Instance.newMap);
+
+        while (Playermanager.ownerPlayer == null)
+            yield return null;
+        Playermanager.ownerPlayer.spawn();
+    }
+
+    public string connectAsHost(int pMap, ushort port = 7777)
     {
         if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
             return "";
         networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getLocalIPAdress();
         networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
         networkManager.StartHost();
+        chosenMap.Value = pMap;
+        StartCoroutine(waitForChosenMap());
         return getIPv4(getLocalIPAdress())[1]; // returns short ip
     }
 
@@ -34,14 +65,20 @@ public class ConnectionManager : NetworkBehaviour
         return shortIP;
     }
 
-    public string GlobalconnectAsHost(ushort port = 7777)
+    public string GlobalconnectAsHost(int pMap, ushort port = 7777)
     {
         if (networkManager.IsClient || networkManager.IsServer || networkManager.IsHost)
             return "";
-        networkManager.GetComponent<UnityTransport>().ConnectionData.Address = getGlobalIPAddress();
-        networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
-        networkManager.StartHost();
-        return getGlobalIPAddress(); // returns long ip
+        string globalIP = getGlobalIPAddress();
+        if (globalIP != "")
+        {
+            networkManager.GetComponent<UnityTransport>().ConnectionData.Address = globalIP;
+            networkManager.GetComponent<UnityTransport>().ConnectionData.Port = port;
+            networkManager.StartHost();
+        }
+        chosenMap.Value = pMap;
+        StartCoroutine(waitForConnection());
+        return globalIP; // returns long ip
     }
 
     public string GlobalconnectToHost(string longIP6, ushort port = 7777)
@@ -61,14 +98,15 @@ public class ConnectionManager : NetworkBehaviour
         while (timer < 5)
         {
             timer += Time.deltaTime;
-            if (networkManager.IsConnectedClient)
+            if (networkManager.IsConnectedClient || networkManager.IsHost)
             {
                 Manager.Instance.startGame();
+                StartCoroutine(waitForChosenMap());
                 break;
             }
             yield return null;
         }
-        if (!networkManager.IsConnectedClient)
+        if (!networkManager.IsConnectedClient && !networkManager.IsHost)
         {
             stopNetwork();
             UIManager.Instance.connectionFailed();
@@ -78,6 +116,15 @@ public class ConnectionManager : NetworkBehaviour
     public void stopNetwork()
     {
         networkManager.Shutdown();
+        StartCoroutine(resetChosenMap());
+    }
+
+    IEnumerator resetChosenMap()
+    {
+        while (IsClient || IsHost)
+            yield return null;
+
+        chosenMap.Value = 0;
     }
 
     //IEnumerator isConnected()

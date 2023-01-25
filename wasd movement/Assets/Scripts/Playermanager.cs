@@ -82,7 +82,6 @@ public class Playermanager : NetworkBehaviour
             ownerPlayer = this;
             _playerName.Value = new FixedString64Bytes(Manager.Instance.currentPlayerName);
             Destroy(nameLabel.gameObject);
-            spawn();
         }
     }
 
@@ -92,7 +91,7 @@ public class Playermanager : NetworkBehaviour
         base.OnNetworkDespawn();
     }
 
-    void spawn()
+    public void spawn()
     {
         Vector3 newPos = Spawnlocation.getLocation();
         transform.position = newPos;

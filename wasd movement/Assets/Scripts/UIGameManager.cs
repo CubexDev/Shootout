@@ -18,6 +18,7 @@ public class UIGameManager : MonoBehaviour
     public GameObject gameUI;
     public GameObject pauseUI;
     public GameObject deathUI;
+    public GameObject playerListUI;
 
     #region pausedGame
     public TMP_Text lobbyCode;
@@ -81,6 +82,7 @@ public class UIGameManager : MonoBehaviour
     {
         gameUI.SetActive(true);
         pauseUI.SetActive(false);
+        playerListUI.SetActive(false);
         deathUI.SetActive(false);
         escapeAction = playerInput.actions["Escape"];
     }
@@ -89,6 +91,7 @@ public class UIGameManager : MonoBehaviour
     {
         gameUI.SetActive(true);
         pauseUI.SetActive(true);
+        playerListUI.SetActive(true);
         deathUI.SetActive(false);
         escapeAction = playerInput.actions["Escape"];
     }
@@ -97,6 +100,7 @@ public class UIGameManager : MonoBehaviour
     {
         gameUI.SetActive(true);
         pauseUI.SetActive(false);
+        playerListUI.SetActive(true);
         deathUI.SetActive(true);
         escapeAction = playerInput.actions["Escape"];
         spaceAction = playerInput.actions["Space"];

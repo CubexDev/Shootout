@@ -33,16 +33,15 @@ public class Spawnlocation : MonoBehaviour
             Instance = this;
         else
             Destroy(Instance);
-
-        convertCollToBox();
     }
 
-    void convertCollToBox()
+    public static void convertCollToBox(GameObject currentMap)
     {
-        BoxCollider[] spawnColl = GetComponents<BoxCollider>();
+        Instance.spawnBoxes.Clear();
+        BoxCollider[] spawnColl = currentMap.GetComponents<BoxCollider>();
         for (int i = 0; i < spawnColl.Length; i++)
         {
-            spawnBoxes.Add(new SpawnBox(spawnColl[i].bounds.min, spawnColl[i].bounds.max));
+            Instance.spawnBoxes.Add(new SpawnBox(spawnColl[i].bounds.min, spawnColl[i].bounds.max));
         }
     }
 

@@ -7,7 +7,16 @@ using TMPro;
 
 public class SettingsManager : MonoBehaviour
 {
+    public static SettingsManager Instance;
     public GameObject settingsScreen;
+
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(Instance);
+    }
 
     private void Update()
     {
@@ -16,6 +25,32 @@ public class SettingsManager : MonoBehaviour
         {
         }
     }
+
+    public void openSettings()
+    {
+        Manager.Instance.openSettings();
+        settingsScreen.SetActive(true);
+        updateControlls();
+    }
+    public void closeSettings()
+    {
+        Manager.Instance.closeSettings();
+        settingsScreen.SetActive(false);
+    }
+
+    #region controllsSetttings
+    public Slider c_SensiSlider;
+    public static float c_Sensi = 3f;
+    public void changeSensi()
+    {
+        c_Sensi = c_SensiSlider.value;
+    }
+
+    void updateControlls()
+    {
+        c_SensiSlider.value = c_Sensi;
+    }
+    #endregion
 
     #region tabs
     int currentTab;

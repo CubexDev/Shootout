@@ -78,8 +78,8 @@ public class playerlooking : NetworkBehaviour
     void updateLook()
     {
         Vector2 lookInput = lookAction.ReadValue<Vector2>();
-        look.x += lookInput.x * mouseSensitivity;
-        look.y += lookInput.y * mouseSensitivity;
+        look.x += lookInput.x * SettingsManager.c_Sensi;
+        look.y += lookInput.y * SettingsManager.c_Sensi;
 
         look.y = Mathf.Clamp(look.y, -89f, 89f);
 

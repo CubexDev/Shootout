@@ -8,13 +8,18 @@ using System.Windows;
 using System.Reflection;
 using UnityEngine.SceneManagement;
 
-public class Manager : MonoBehaviour
+public class Manager : NetworkBehaviour
 {
     public static Manager Instance;
     public enum GameState { Lobby, Game, PausedGame, Settings}
     public GameState gamestate { get; private set; }
     public string ownIP { get; private set; } = "";
-    public bool isHost { get; private set; } = false;
+    //public bool isHost { get; private set; } = false;
+
+    public GameObject oldMapPrefab;
+    public GameObject newMapPrefab;
+    public GameObject oldMap;
+    public GameObject newMap;
 
     public PlayerInput playerInput;
     public ConnectionManager connectionManager;
@@ -36,6 +41,10 @@ public class Manager : MonoBehaviour
 
         //Debug.Log("PnlineLobbies: ");
         //OnlineLobbies.getLobbies();
+        oldMap = Instantiate(oldMapPrefab);
+        oldMap.SetActive(true);
+        newMap = Instantiate(newMapPrefab);
+        newMap.SetActive(false);
     }
 
     public void connectAsClient(string shortIP)
@@ -44,10 +53,10 @@ public class Manager : MonoBehaviour
         //startGame();
     }
 
-    public void startHost()
+    public void startHost(int pMap)
     {
-        isHost = true;
-        ownIP = connectionManager.connectAsHost();
+        //isHost = true;
+        ownIP = connectionManager.connectAsHost(pMap);
         UIManager.Instance.gameStarting();
         startGame();
     }
@@ -58,17 +67,46 @@ public class Manager : MonoBehaviour
        // startGame();
     }
 
-    public void globalstartHost()
+    public void globalstartHost(int pMap)
     {
-        isHost = true;
-        ownIP = connectionManager.GlobalconnectAsHost();
-        UIManager.Instance.gameStarting();
-        startGame();
+        //isHost = true;
+        ownIP = connectionManager.GlobalconnectAsHost(pMap);
     }
 
+    public void getMap()
+    {
+        if (connectionManager.chosenMap.Value == 1)
+        {
+            Debug.Log("getMap1");
+            oldMap.SetActive(true);
+            Destroy(newMap);
+        }
+        else
+        {
+            Debug.Log("getMap2");
+            newMap.SetActive(true);
+            Destroy(oldMap);
+        }
+    }
+
+    void returnMap()
+    {
+        if(oldMap != null)
+        {
+            oldMap.SetActive(true);
+            newMap = Instantiate(newMapPrefab);
+            newMap.SetActive(false);
+        }
+        else
+        {
+            newMap.SetActive(false);
+            oldMap = Instantiate(oldMapPrefab);
+            oldMap.SetActive(true);
+        }
+    }
 
     public void startGame()
-    { 
+    {
         gamestate = GameState.Game;
         UIManager.Instance.gameStarting();
         playerInput.SwitchCurrentActionMap("Player");
@@ -98,6 +136,7 @@ public class Manager : MonoBehaviour
         UIManager.Instance.gameLeft();
         uiCam.SetActive(true);
         connectionManager.stopNetwork();
+        returnMap();
     }
 
     public void connectionLost()
@@ -109,6 +148,19 @@ public class Manager : MonoBehaviour
         UIManager.Instance.connectionLost();
         uiCam.SetActive(true);
         connectionManager.stopNetwork();
+    }
+
+    public void openSettings()
+    {
+        gamestate = GameState.Settings;
+    }
+
+    public void closeSettings()
+    {
+        if (uiCam.activeSelf)
+            gamestate = GameState.Lobby;
+        else
+            gamestate = GameState.PausedGame;
     }
 
     public void copyIPAdress()
