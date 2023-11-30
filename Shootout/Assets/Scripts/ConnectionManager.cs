@@ -95,10 +95,10 @@ public class ConnectionManager : NetworkBehaviour
     IEnumerator waitForConnection()
     {
         float timer = 0;
-        while (timer < 10)
+        while (timer < 5)
         {
             timer += Time.deltaTime;
-            if (/*networkManager.IsConnectedClient || networkManager.IsHost*/true)
+            if (networkManager.IsConnectedClient || networkManager.IsHost)
             {
                 Manager.Instance.startGame();
                 StartCoroutine(waitForChosenMap());
