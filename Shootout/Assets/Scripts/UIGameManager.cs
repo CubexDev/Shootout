@@ -31,18 +31,23 @@ public class UIGameManager : MonoBehaviour
     #endregion
 
 
-    private void Awake()
-    {
+    private void Awake(){
         if (Instance == null)
             Instance = this;
         else
             Destroy(Instance);
     }
-
-    private void Start()
-    {
+    private void Start(){
         playerInput = Manager.Instance.playerInput;
         Hitmarker.SetActive(false);
+    }
+    private void OnEnable(){
+        Manager.gameStarted += activate;
+        Manager.gameleft += deactivate;
+    }
+    private void OnDisable(){
+        Manager.gameStarted -= activate;
+        Manager.gameleft -= deactivate;
     }
 
     private void Update()
@@ -112,11 +117,11 @@ public class UIGameManager : MonoBehaviour
         gameUIOn();
         copyIP.gameObject.SetActive(true);
         lobbyCode.gameObject.SetActive(true);
-        lobbyCode.text = "Your Lobbycode is: " + Manager.Instance.ownIP;
+        lobbyCode.text = "Your Lobbycode is: " + Manager.Instance.lobbyCode;
         resetUI();
     }
 
-    public void deactivate()
+    public void deactivate(bool isConnectionError)
     {
         gameScreen.SetActive(false);
     }

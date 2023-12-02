@@ -13,22 +13,22 @@ public class Manager : NetworkBehaviour
     public static Manager Instance;
     public enum GameState { Lobby, Game, PausedGame, Settings}
     public GameState gamestate { get; private set; }
-    public string ownIP { get; private set; } = "";
+    public string lobbyCode { get; private set; } = "";
     //public bool isHost { get; private set; } = false;
 
-    public GameObject oldMapPrefab;
-    public GameObject newMapPrefab;
-    public GameObject oldMap;
-    public GameObject newMap;
 
     public PlayerInput playerInput;
     public ConnectionManager connectionManager;
 
     public GameObject uiCam;
 
-    public Action OnLobbyoppened;
-    public Action OnGamestarted;
-    public Action OnGamepaused;
+    public static event Action<int> buildMap;
+
+    public static event Action gameStarted;
+    public static event Action gamePaused;
+    public static event Action gameContinued;
+    ///<summary> boolean: isConnectionError </summary>
+    public static event Action<bool> gameleft; 
 
     public string currentPlayerName = "";
 
@@ -41,77 +41,52 @@ public class Manager : NetworkBehaviour
 
         //Debug.Log("PnlineLobbies: ");
         //OnlineLobbies.getLobbies();
-        oldMap = Instantiate(oldMapPrefab);
-        oldMap.SetActive(true);
-        newMap = Instantiate(newMapPrefab);
-        newMap.SetActive(false);
     }
 
-    public void connectAsClient(string shortIP)
+    public async void connectAsClient(string pLobbyCode)
     {
-        ownIP = connectionManager.connectToHost(shortIP);
+        lobbyCode = pLobbyCode;
+        if (await RelayConnection.StartClientWithRelay(lobbyCode))
+        {
+            //connection sucessful
+            //wait for map
+            //buildMap?.Invoke(pMap);
+            startGame();
+        }
+        else
+        {
+            //connection failed
+        }
         //startGame();
     }
 
-    public void startHost(int pMap)
+    public async void startHost(int pMap)
     {
         //isHost = true;
-        ownIP = connectionManager.connectAsHost(pMap);
-        UIManager.Instance.gameStarting();
-        startGame();
-    }
+        //ownIP = connectionManager.connectAsHost(pMap);
 
-    public void globalconnectAsClient(string longIP)
-    {
-        ownIP = connectionManager.GlobalconnectToHost(longIP);
-       // startGame();
-    }
-
-    public void globalstartHost(int pMap)
-    {
-        //isHost = true;
-        ownIP = connectionManager.GlobalconnectAsHost(pMap);
-    }
-
-    public void getMap()
-    {
-        if (connectionManager.chosenMap.Value == 1)
+        lobbyCode = await RelayConnection.StartHostWithRelay();
+        //connectingUI
+        if(lobbyCode == null)
         {
-            Debug.Log("getMap1");
-            oldMap.SetActive(true);
-            Destroy(newMap);
+            //connection Failed
         }
         else
         {
-            Debug.Log("getMap2");
-            newMap.SetActive(true);
-            Destroy(oldMap);
+            //connection successful
+            buildMap?.Invoke(pMap);
+            startGame();
         }
     }
 
-    void returnMap()
-    {
-        if(oldMap != null)
-        {
-            oldMap.SetActive(true);
-            newMap = Instantiate(newMapPrefab);
-            newMap.SetActive(false);
-        }
-        else
-        {
-            newMap.SetActive(false);
-            oldMap = Instantiate(oldMapPrefab);
-            oldMap.SetActive(true);
-        }
-    }
 
     public void startGame()
     {
         gamestate = GameState.Game;
-        UIManager.Instance.gameStarting();
         playerInput.SwitchCurrentActionMap("Player");
         Cursor.lockState = CursorLockMode.Locked;
-        UIGameManager.Instance.activate();
+        gameStarted?.Invoke();
+        //UIGameManager.Instance.activate();
         uiCam.SetActive(false);
     }
     public void stopGame()
@@ -119,12 +94,14 @@ public class Manager : NetworkBehaviour
         gamestate = GameState.PausedGame;
         playerInput.SwitchCurrentActionMap("UI");
         Cursor.lockState = CursorLockMode.None;
+        gamePaused?.Invoke();
     }
     public void continueGame()
     {
         gamestate = GameState.Game;
         playerInput.SwitchCurrentActionMap("Player");
         Cursor.lockState = CursorLockMode.Locked;
+        gameContinued?.Invoke();
     }
 
     public void leaveGame()
@@ -132,11 +109,12 @@ public class Manager : NetworkBehaviour
         gamestate = GameState.Lobby;
         playerInput.SwitchCurrentActionMap("UI");
         Cursor.lockState = CursorLockMode.None;
-        UIGameManager.Instance.deactivate();
-        UIManager.Instance.gameLeft();
+
+        gameleft?.Invoke(false);
+        //UIGameManager.Instance.deactivate();
+        //UIManager.Instance.gameLeft();
         uiCam.SetActive(true);
-        connectionManager.stopNetwork();
-        returnMap();
+        //connectionManager.stopNetwork();
     }
 
     public void connectionLost()
@@ -144,10 +122,11 @@ public class Manager : NetworkBehaviour
         gamestate = GameState.Lobby;
         playerInput.SwitchCurrentActionMap("UI");
         Cursor.lockState = CursorLockMode.None;
-        UIGameManager.Instance.deactivate();
-        UIManager.Instance.connectionLost();
+        gameleft?.Invoke(true);
+        //UIGameManager.Instance.deactivate();
+        //UIManager.Instance.connectionLost();
         uiCam.SetActive(true);
-        connectionManager.stopNetwork();
+        //connectionManager.stopNetwork();
     }
 
     public void openSettings()
@@ -165,7 +144,7 @@ public class Manager : NetworkBehaviour
 
     public void copyIPAdress()
     {
-        GUIUtility.systemCopyBuffer = ownIP;
+        GUIUtility.systemCopyBuffer = lobbyCode;
     }
 
     public void QuitApp()

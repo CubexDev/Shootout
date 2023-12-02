@@ -44,6 +44,16 @@ public class UIManager : MonoBehaviour
         enterAction = playerInput.actions["Enter"];
     }
 
+    private void OnEnable(){
+        Manager.gameleft += gameLeft;
+        Manager.gameStarted += gameStarting;
+    }
+    private void OnDisable()
+    {
+        Manager.gameleft -= gameLeft;
+        Manager.gameStarted -= gameStarting;
+    }
+
     private void Update()
     {
         if (Manager.Instance.gamestate != Manager.GameState.Lobby)
@@ -143,10 +153,11 @@ public class UIManager : MonoBehaviour
         string ipTxt = transform.GetComponentInChildren<TMP_InputField>().text;
         revertBranch();
         continueBranch("Connecting");
-        if (isLAN)
+        Manager.Instance.connectAsClient(ipTxt);
+        /*if (isLAN)
             Manager.Instance.connectAsClient(ipTxt);
         else
-            Manager.Instance.globalconnectAsClient(ipTxt);
+            Manager.Instance.globalconnectAsClient(ipTxt);*/
     }
     #endregion
 
@@ -166,10 +177,14 @@ public class UIManager : MonoBehaviour
         startingUI.SetActive(false);
     }
 
-    public void gameLeft()
+    public void gameLeft(bool isConnectionError)
     {
         startingUI.SetActive(true);
-        while (uiStack.Peek().name != "Lobby Screen")
+        if (uiStack.Peek().name != "Lobby Screen")
+            revertBranch();
+        if(isConnectionError)
+            continueBranch("You Got Disconnected");
+        else
             revertBranch();
     }
 

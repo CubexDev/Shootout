@@ -37,7 +37,7 @@ public class RelayConnection : MonoBehaviour
             await StartClientWithRelay(lobbycode);
     }
 
-    public async Task<string> StartHostWithRelay(int maxConnections = 5)
+    public static async Task<string> StartHostWithRelay(int maxConnections = 5)
     {
         await UnityServices.InitializeAsync();
         if (!AuthenticationService.Instance.IsSignedIn)
@@ -50,7 +50,7 @@ public class RelayConnection : MonoBehaviour
         return NetworkManager.Singleton.StartHost() ? joinCode : null;
     }
 
-    public async Task<bool> StartClientWithRelay(string joinCode)
+    public static async Task<bool> StartClientWithRelay(string joinCode)
     {
         await UnityServices.InitializeAsync();
         if (!AuthenticationService.Instance.IsSignedIn)

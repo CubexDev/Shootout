@@ -11,6 +11,7 @@ using System.IO;
 
 public class ConnectionManager : NetworkBehaviour
 {
+    /*
     public NetworkManager networkManager;
     public NetworkVariable<int> chosenMap;
 
@@ -98,7 +99,7 @@ public class ConnectionManager : NetworkBehaviour
         while (timer < 10)
         {
             timer += Time.deltaTime;
-            if (/*networkManager.IsConnectedClient || networkManager.IsHost*/true)
+            if (networkManager.IsConnectedClient || networkManager.IsHost)
             {
                 Manager.Instance.startGame();
                 StartCoroutine(waitForChosenMap());
@@ -214,5 +215,5 @@ public class ConnectionManager : NetworkBehaviour
         return new string[] { charedString, lastDigits};
     }
 
-
+*/
 }
