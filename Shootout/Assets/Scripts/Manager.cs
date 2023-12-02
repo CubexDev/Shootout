@@ -43,12 +43,14 @@ public class Manager : NetworkBehaviour
         //OnlineLobbies.getLobbies();
     }
 
-    public async void connectAsClient(string pLobbyCode)
+    public async void connectAsClient()
     {
-        lobbyCode = pLobbyCode;
-        if (await RelayConnection.StartClientWithRelay(lobbyCode))
+        lobbyCode = UIManager.Instance.getLobbyCodeInput();
+
+        UIManager.Instance.connectingScreen();
+        bool connectionSuccessful = await RelayConnection.StartClientWithRelay(lobbyCode);
+        if (connectionSuccessful)
         {
-            //connection sucessful
             //wait for map
             //buildMap?.Invoke(pMap);
             startGame();
@@ -56,20 +58,21 @@ public class Manager : NetworkBehaviour
         else
         {
             //connection failed
+            UIManager.Instance.connectionFailed();
         }
         //startGame();
     }
 
     public async void startHost(int pMap)
     {
-        //isHost = true;
-        //ownIP = connectionManager.connectAsHost(pMap);
+        UIManager.Instance.connectingScreen();
 
         lobbyCode = await RelayConnection.StartHostWithRelay();
-        //connectingUI
+
         if(lobbyCode == null)
         {
             //connection Failed
+            UIManager.Instance.connectionFailed();
         }
         else
         {
@@ -79,8 +82,14 @@ public class Manager : NetworkBehaviour
         }
     }
 
+    public void disconnect()
+    {
+        leaveGame();
+        RelayConnection.StopConnection();
+    }
 
-    public void startGame()
+
+    void startGame()
     {
         gamestate = GameState.Game;
         playerInput.SwitchCurrentActionMap("Player");
@@ -104,7 +113,7 @@ public class Manager : NetworkBehaviour
         gameContinued?.Invoke();
     }
 
-    public void leaveGame()
+    void leaveGame()
     {
         gamestate = GameState.Lobby;
         playerInput.SwitchCurrentActionMap("UI");
@@ -142,7 +151,7 @@ public class Manager : NetworkBehaviour
             gamestate = GameState.PausedGame;
     }
 
-    public void copyIPAdress()
+    public void copyLobbyCOde()
     {
         GUIUtility.systemCopyBuffer = lobbyCode;
     }

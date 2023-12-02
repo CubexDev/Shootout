@@ -62,4 +62,9 @@ public class RelayConnection : MonoBehaviour
         NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(new RelayServerData(joinAllocation, "dtls"));
         return !string.IsNullOrEmpty(joinCode) && NetworkManager.Singleton.StartClient();
     }
+
+    public static void StopConnection()
+    {
+        NetworkManager.Singleton.Shutdown();
+    }
 }
