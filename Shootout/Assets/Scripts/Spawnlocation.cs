@@ -47,6 +47,7 @@ public class Spawnlocation : MonoBehaviour
 
     public static Vector3 getLocation()
     {
+        Debug.Log(Instance.spawnBoxes.Count);
         return Instance.spawnBoxes[Random.Range(0, Instance.spawnBoxes.Count)].getSpawnPos();
     }
 }

@@ -425,24 +425,6 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
-                },
-                {
-                    "name": "HostBtn",
-                    "type": "Button",
-                    "id": "d0e37c85-2a2a-4745-b7dc-d5c1e7ec41d5",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
-                },
-                {
-                    "name": "ClientBtn",
-                    "type": "Button",
-                    "id": "f45fa760-5c1d-4409-a915-1d5743016087",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -949,28 +931,6 @@
                     "processors": "",
                     "groups": "Keyboard&Mouse",
                     "action": "Space",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "e949030e-d64e-4bc2-936a-b9a1fb7b5307",
-                    "path": "<Keyboard>/h",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "HostBtn",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
-                    "id": "3ce6b32b-5bac-4d28-bdf3-8a9534a0ef5c",
-                    "path": "<Keyboard>/c",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "ClientBtn",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

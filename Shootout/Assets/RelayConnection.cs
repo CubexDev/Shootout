@@ -18,25 +18,6 @@ public class RelayConnection : MonoBehaviour
     public InputAction clientAction;
     public string lobbycode;
 
-    private void Start()
-    {
-        hostAction = playerInput.actions["HostBtn"];
-        clientAction = playerInput.actions["ClientBtn"];
-    }
-
-    void Update()
-    {
-        checkForInput();
-    }
-
-    async void checkForInput()
-    {
-        if (hostAction.triggered)
-            lobbycode = await StartHostWithRelay();
-        if (clientAction.triggered)
-            await StartClientWithRelay(lobbycode);
-    }
-
     public static async Task<string> StartHostWithRelay(int maxConnections = 5)
     {
         await UnityServices.InitializeAsync();

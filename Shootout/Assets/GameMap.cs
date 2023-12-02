@@ -9,8 +9,17 @@ public class GameMap : MonoBehaviour
     static GameObject mapInstance;
     public static int currentMap = 0;
 
+    public static GameMap Instance;
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(Instance);
+    }
+
     void Start() {
-        mapInstance = Instantiate(mapPrefab[currentMap]);
+        loadMenuMap(false);
     }
     private void OnEnable() {
         Manager.buildMap += loadMap;
@@ -24,17 +33,14 @@ public class GameMap : MonoBehaviour
     void loadMenuMap(bool isConnectionError) //map for main manu
     {
         currentMap = 0;
-        loadMap(0);
+        loadMap(currentMap);
     }
 
     void loadMap(int mapNumber)
     {
-        if(currentMap != mapNumber)
-        {
-            Destroy(mapInstance);
-            mapInstance = mapPrefab[mapNumber];
-            currentMap = mapNumber;
-        }
+        Destroy(mapInstance);
+        mapInstance = Instantiate(mapPrefab[mapNumber]);
+        currentMap = mapNumber;
         Spawnlocation.convertCollToBox(mapInstance);
     }
 }
