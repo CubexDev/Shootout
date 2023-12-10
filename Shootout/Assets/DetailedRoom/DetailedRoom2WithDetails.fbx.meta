@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 84bfa8436e78a324683872aaee3d6028
+guid: 4d0e81fb53d4d474da223835e474e2e2
 ModelImporter:
   serializedVersion: 22200
   internalIDToNameTable: []
@@ -12,8 +12,23 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: BuchRand_Rot
+    second: {fileID: 2100000, guid: 35929e95145a4374eb7344fb6d596a5a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BuchSeiten
+    second: {fileID: 2100000, guid: f5a6e3b504dcf7a4aacf640145428eca, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Gewicht
     second: {fileID: 2100000, guid: 4d9ed881a7bbc214f89b62fd56ef3be4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GewichtHalterung
+    second: {fileID: 2100000, guid: f04b5f5ab41d7e443bb8c0488fcc91fb, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
@@ -47,6 +62,16 @@ ModelImporter:
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
+      name: Skateboard
+    second: {fileID: 2100000, guid: 2b6ad8c897532f1479210ecb3904293e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: "Skateboard_R\xE4der"
+    second: {fileID: 2100000, guid: 99444ed7936650045a00fa7a087eaed5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
       name: Sofa
     second: {fileID: 2100000, guid: 5d54a97915b6c864b8d72ab4de943981, type: 2}
   - first:
@@ -64,6 +89,11 @@ ModelImporter:
       assembly: UnityEngine.CoreModule
       name: Stuhlbeine
     second: {fileID: 2100000, guid: 10f0c6236baaac046a92118a6525ef81, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Tasse
+    second: {fileID: 2100000, guid: 3fb7e039ccf68854fa16c9f2663c9deb, type: 2}
   - first:
       type: UnityEngine:Material
       assembly: UnityEngine.CoreModule
