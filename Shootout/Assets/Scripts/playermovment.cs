@@ -63,6 +63,7 @@ public class playermovment : NetworkBehaviour
                 prejumpTimer = 0;
             else if (prejumpTimer >= 0)
                 prejumpTimer += Time.deltaTime;
+
         } else if (prejumpTimer >= 0 && prejumpTimer <= prejumpTime)
         {
             if(!jumpAction.IsPressed()) //damit nicht doppelt ausgeführt wird
@@ -79,6 +80,18 @@ public class playermovment : NetworkBehaviour
         {
             velocity.y = jumpSpeed;
         }
+    }
+
+    public void jumppadVelocityMultiplier(Vector3 velocityMultiplier)
+    {
+        velocity.x *= velocityMultiplier.x;
+        velocity.y *= Math.Abs(velocity.y) * velocityMultiplier.y;
+        velocity.z *= velocityMultiplier.z;
+    }
+
+    public void jumppadYVelocity(float yVelocity)
+    {
+        velocity.y = yVelocity;
     }
 
     void UpdateGround()  //not used yet

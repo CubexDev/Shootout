@@ -140,6 +140,7 @@ GameObject:
   - component: {fileID: -4101054997557584236}
   - component: {fileID: 6560754858307571527}
   - component: {fileID: 2061111044552577490}
+  - component: {fileID: -3153736001004806558}
   m_Layer: 2
   m_Name: player
   m_TagString: Untagged
@@ -378,6 +379,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   coolDown: 0.7
   laser: {fileID: 5238035324219025602, guid: a0fd58f5972012447b29512127220427, type: 3}
+--- !u!54 &-3153736001004806558
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 493837731610244988}
+  serializedVersion: 4
+  m_Mass: 0.0000001
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &493837731930990081
 GameObject:
   m_ObjectHideFlags: 0
