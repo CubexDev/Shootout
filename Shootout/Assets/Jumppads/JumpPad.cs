@@ -14,6 +14,10 @@ public class JumpPad : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log("trigger");
+        if (other.transform.parent.tag != "Player")
+            return;
+
         if (jumppadType == JumppadType.HighJumppad)
             other.GetComponentInParent<playermovment>().jumppadYVelocity(highVelocity);
         else
