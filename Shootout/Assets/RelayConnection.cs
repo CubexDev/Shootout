@@ -18,7 +18,7 @@ public class RelayConnection : MonoBehaviour
     public InputAction clientAction;
     public string lobbycode;
 
-    public static async Task<string> StartHostWithRelay(int maxConnections = 5)
+    public static async Task<string> StartHostWithRelay(int maxConnections = 5 )
     {
         await UnityServices.InitializeAsync();
         if (!AuthenticationService.Instance.IsSignedIn)
