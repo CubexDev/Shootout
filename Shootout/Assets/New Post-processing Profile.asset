@@ -17,8 +17,8 @@ MonoBehaviour:
     overrideState: 1
     value: 1
   gradingMode:
-    overrideState: 0
-    value: 1
+    overrideState: 1
+    value: 0
   externalLut:
     overrideState: 0
     value: {fileID: 0}
@@ -52,20 +52,20 @@ MonoBehaviour:
     overrideState: 0
     value: 1
   temperature:
-    overrideState: 0
-    value: -5
+    overrideState: 1
+    value: 5
   tint:
     overrideState: 0
-    value: -59
+    value: 16
   colorFilter:
     overrideState: 0
     value: {r: 1, g: 1, b: 1, a: 1}
   hueShift:
     overrideState: 0
-    value: 0
+    value: -180
   saturation:
     overrideState: 1
-    value: 40
+    value: 27
   brightness:
     overrideState: 0
     value: 0
@@ -76,11 +76,11 @@ MonoBehaviour:
     overrideState: 1
     value: -23
   mixerRedOutRedIn:
-    overrideState: 0
+    overrideState: 1
     value: 100
   mixerRedOutGreenIn:
     overrideState: 0
-    value: 0
+    value: -200
   mixerRedOutBlueIn:
     overrideState: 0
     value: 0
@@ -104,13 +104,13 @@ MonoBehaviour:
     value: 100
   lift:
     overrideState: 0
-    value: {x: 1, y: 1, z: 1, w: 0}
+    value: {x: 1, y: 1, z: 1, w: 0.007222469}
   gamma:
     overrideState: 0
-    value: {x: 1, y: 1, z: 1, w: 0}
+    value: {x: 1, y: 1, z: 1, w: 0.4723388}
   gain:
     overrideState: 0
-    value: {x: 1, y: 1, z: 1, w: 0}
+    value: {x: 1, y: 1, z: 1, w: -0.1848908}
   masterCurve:
     overrideState: 0
     value:
@@ -279,7 +279,7 @@ MonoBehaviour:
         - serializedVersion: 3
           time: 0
           value: 0
-          inSlope: 1
+          inSlope: 0
           outSlope: 1
           tangentMode: 0
           weightedMode: 0
@@ -289,7 +289,7 @@ MonoBehaviour:
           time: 1
           value: 1
           inSlope: 1
-          outSlope: 1
+          outSlope: 0
           tangentMode: 0
           weightedMode: 0
           inWeight: 0
@@ -396,39 +396,39 @@ MonoBehaviour:
       - 0.71875
       - 0.7265625
       - 0.734375
-      - 0.7421875
-      - 0.75
-      - 0.7578125
-      - 0.765625
-      - 0.7734375
-      - 0.78125
-      - 0.7890625
-      - 0.796875
-      - 0.8046875
-      - 0.8125
-      - 0.8203125
-      - 0.828125
-      - 0.8359375
-      - 0.84375
-      - 0.8515625
-      - 0.859375
-      - 0.8671875
-      - 0.875
-      - 0.8828125
-      - 0.890625
-      - 0.8984375
-      - 0.90625
-      - 0.9140625
-      - 0.921875
-      - 0.9296875
-      - 0.9375
-      - 0.9453125
-      - 0.953125
-      - 0.9609375
-      - 0.96875
-      - 0.9765625
-      - 0.984375
-      - 0.9921875
+      - 0.7413702
+      - 0.7457468
+      - 0.7477931
+      - 0.7478919
+      - 0.7464262
+      - 0.74377877
+      - 0.7403325
+      - 0.73647016
+      - 0.73257476
+      - 0.7290291
+      - 0.726216
+      - 0.72451836
+      - 0.72431904
+      - 0.7260009
+      - 0.72994673
+      - 0.7365229
+      - 0.7428798
+      - 0.74693024
+      - 0.7489779
+      - 0.74932635
+      - 0.74827933
+      - 0.74614036
+      - 0.7432132
+      - 0.7398014
+      - 0.73620874
+      - 0.7327387
+      - 0.729695
+      - 0.7273813
+      - 0.7261012
+      - 0.7261584
+      - 0.7278565
+      - 0.73149914
+      - 0.73739
   greenCurve:
     overrideState: 0
     value:
