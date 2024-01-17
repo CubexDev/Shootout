@@ -8,6 +8,10 @@ using TMPro;
 public class playerlooking : NetworkBehaviour
 {
     public Transform cameraTransform;
+    public Transform bodyTransform;
+    public Transform headTransform;
+    public Transform gunTransform;
+
     public float zoomOutSpeed = 1f;
     public float zoomOutDistance = 1f;
 
@@ -41,7 +45,13 @@ public class playerlooking : NetworkBehaviour
     {
         // LATE UPDATE!!
         if (IsOwner)
+        {
+            updateCamera();
+            updateBody();
+            updateHead();
+            updateGun();
             updateLabels();
+        }
     }
 
     void cameraStartZoom(Playermanager pm, string otherPlayer)
@@ -82,8 +92,6 @@ public class playerlooking : NetworkBehaviour
 
         look.y = Mathf.Clamp(look.y, -89f, 89f);
 
-        transform.localRotation = Quaternion.Euler(0, look.x, 0);
-        cameraTransform.localRotation = Quaternion.Euler(-look.y, 0, 0);
     }
 
     void switchCameraTo(GameObject go)
@@ -93,6 +101,16 @@ public class playerlooking : NetworkBehaviour
         //    if (Camera.allCameras[i].gameObject != go) Destroy(Camera.allCameras[i].gameObject);
         //}
         go.GetComponent<Camera>().enabled = true;
+    }
+
+    void updateBody()
+    {
+        bodyTransform.localRotation = Quaternion.Euler(look.x, 0, 0);
+    }
+
+    void updateCamera()
+    {
+        cameraTransform.localRotation = Quaternion.Euler(-look.y, look.x, 0);
     }
 
     void updateLabels()
@@ -105,5 +123,15 @@ public class playerlooking : NetworkBehaviour
                 label.LookAt(cameraTransform);
             }
         }
+    }
+
+    void updateHead()
+    {
+        headTransform.localRotation = Quaternion.Euler(0, -look.y, 0);
+    }
+
+    void updateGun()
+    {
+        gunTransform.localRotation = Quaternion.Euler(0, -look.y, 0);
     }
 }

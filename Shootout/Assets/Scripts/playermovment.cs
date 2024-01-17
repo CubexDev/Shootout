@@ -7,6 +7,10 @@ using System;
 
 public class playermovment : NetworkBehaviour
 {
+    [SerializeField] Transform bodyDirTransform;
+    [SerializeField] Transform bodyRotTransform;
+    [SerializeField] Transform wheelTransform;
+
     [SerializeField] float movementSpeed = 5f;
     [SerializeField] float jumpSpeed = 5f;
     [SerializeField] float prejumpTime = 0.1f;
@@ -51,6 +55,9 @@ public class playermovment : NetworkBehaviour
             }
         }
         if(!_isDead) UpdateGravity();
+
+        updateBodyRot();
+        updateWheelRot();
 
         //UpdateGround(); //not used yet
     }
@@ -115,8 +122,8 @@ public class playermovment : NetworkBehaviour
     {
         Vector2 moveInput = moveAction.ReadValue<Vector2>();
         Vector3 input = new Vector3();
-        input += transform.forward * moveInput.y;
-        input += transform.right * moveInput.x;
+        input += bodyDirTransform.forward * moveInput.y;
+        input += - bodyDirTransform.up * moveInput.x;
         input = Vector3.ClampMagnitude(input, 1f); // diagnol movement = forward movement
         input *= movementSpeed;
         return input;
@@ -136,4 +143,22 @@ public class playermovment : NetworkBehaviour
         velocity.x = Mathf.Lerp(velocity.x, input.x, factor);
         velocity.z = Mathf.Lerp(velocity.z, input.z, factor);
     }
+
+    void updateBodyRot()
+    {
+        //Vector3 v = new Vector3(velocity.x, movementSpeed, velocity.z) / movementSpeed;
+        //bodyTransform.rotation = Quaternion.LookRotation(v);
+    }
+
+    void updateWheelRot()
+    {
+        Vector3 v = new Vector3(velocity.x, 0, velocity.z);
+        Debug.Log(velocity);
+        if(v != Vector3.zero)
+        {
+            float angle = Mathf.Atan2(v.x, v.z) * Mathf.Rad2Deg;
+            wheelTransform.localEulerAngles = Vector3.up * angle;
+        }
+    }
 }
+ 
