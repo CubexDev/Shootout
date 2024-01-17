@@ -17,6 +17,7 @@ public class playermovment : NetworkBehaviour
     [SerializeField] float mass = 1f;
     [SerializeField] float groundAcceleration = 20f;
     [SerializeField] float airAccelerationAnteil = 0.5f;
+    [SerializeField] float tiltStrength = 5f;
 
     public bool isGrounded => controller.isGrounded;
     public bool _isDead => Playermanager.ownerPlayer.isDead.Value;
@@ -146,8 +147,8 @@ public class playermovment : NetworkBehaviour
 
     void updateBodyRot()
     {
-        //Vector3 v = new Vector3(velocity.x, movementSpeed, velocity.z) / movementSpeed;
-        //bodyTransform.rotation = Quaternion.LookRotation(v);
+        Vector3 v = bodyDirTransform.InverseTransformDirection(velocity);
+        bodyRotTransform.localRotation = Quaternion.Euler(0, v.z * tiltStrength, - v.y * tiltStrength);
     }
 
     void updateWheelRot()
@@ -157,7 +158,7 @@ public class playermovment : NetworkBehaviour
         if(v != Vector3.zero)
         {
             float angle = Mathf.Atan2(v.x, v.z) * Mathf.Rad2Deg;
-            wheelTransform.localEulerAngles = Vector3.up * angle;
+            wheelTransform.eulerAngles = wheelTransform.up * angle;
         }
     }
 }

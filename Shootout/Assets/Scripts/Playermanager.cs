@@ -73,15 +73,28 @@ public class Playermanager : NetworkBehaviour
         base.OnNetworkSpawn();
         if (!IsOwner)
         {
-            gameObject.layer = 8;
-            body.layer = 9;
             if (playerNameString != "")
                 nameArrived(new FixedString64Bytes(""), playerNameString);
         } else
         {
+            setGameLayerRecursive(gameObject, 2);
             ownerPlayer = this;
             _playerName.Value = new FixedString64Bytes(Manager.Instance.currentPlayerName);
             Destroy(nameLabel.gameObject);
+        }
+    }
+
+    private void setGameLayerRecursive(GameObject _go, int _layer)
+    {
+        _go.layer = _layer;
+        foreach (Transform child in _go.transform)
+        {
+            child.gameObject.layer = _layer;
+
+            Transform _HasChildren = child.GetComponentInChildren<Transform>();
+            if (_HasChildren != null)
+                setGameLayerRecursive(child.gameObject, _layer);
+
         }
     }
 

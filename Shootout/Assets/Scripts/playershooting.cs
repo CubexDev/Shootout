@@ -56,9 +56,7 @@ public class playershooting : NetworkBehaviour
         if (Physics.Raycast(cam.position, cam.TransformDirection(Vector3.forward), out hit, Mathf.Infinity, layerMask))
         {
             if (hit.collider.gameObject.layer == 8) //Layer: "Enemy"
-                playerHit(hit.collider.GetComponent<playershooting>());
-            else if (hit.collider.gameObject.layer == 9) //Layer: "EnemyBody"
-                playerHit(hit.collider.transform.parent.GetComponent<playershooting>());
+                playerHit(hit.collider.GetComponent<playerFinder>().playershootingScripct);
 
             laserEffectServerRPC(hit.distance);
         }
@@ -78,7 +76,7 @@ public class playershooting : NetworkBehaviour
 
     void playerHit(playershooting hitPlayer)
     {
-        if (hitPlayer == playermanager)
+        if (hitPlayer == this)
             return;
 
         //local display of a successful shot
