@@ -14,6 +14,7 @@ public class playerlooking : NetworkBehaviour
 
     public float zoomOutSpeed = 1f;
     public float zoomOutDistance = 1f;
+    float camHeight = 0;
 
     public bool _isDead => Playermanager.ownerPlayer.isDead.Value;
 
@@ -30,6 +31,7 @@ public class playerlooking : NetworkBehaviour
         {
             switchCameraTo(cameraTransform.gameObject);
             Playermanager.ownerPlayer.gotShot += cameraStartZoom;
+            camHeight = cameraTransform.localPosition.y;
         }
     }
 
@@ -47,11 +49,11 @@ public class playerlooking : NetworkBehaviour
         if (IsOwner)
         {
             updateCamera();
-            updateBody();
-            updateHead();
-            updateGun();
             updateLabels();
         }
+        updateBody();
+        updateHead();
+        updateGun();
     }
 
     void cameraStartZoom(Playermanager pm, string otherPlayer)
@@ -74,7 +76,7 @@ public class playerlooking : NetworkBehaviour
 
             yield return null;
         }
-        cameraTransform.position = transform.position + new Vector3(0, 0.88f, 0);
+        cameraTransform.position = transform.position + new Vector3(0, camHeight, 0);
         lookTowardsCenter();
     }
 
@@ -105,7 +107,7 @@ public class playerlooking : NetworkBehaviour
 
     void updateBody()
     {
-        bodyTransform.localRotation = Quaternion.Euler(look.x, 0, 0);
+        bodyTransform.localRotation = Quaternion.Euler(cameraTransform.rotation.eulerAngles.y, 0, 0);
     }
 
     void updateCamera()
@@ -127,11 +129,11 @@ public class playerlooking : NetworkBehaviour
 
     void updateHead()
     {
-        headTransform.localRotation = Quaternion.Euler(0, -look.y, 0);
+        headTransform.localRotation = Quaternion.Euler(0, cameraTransform.rotation.eulerAngles.x, 0);
     }
 
     void updateGun()
     {
-        gunTransform.localRotation = Quaternion.Euler(0, -look.y, 0);
+        gunTransform.localRotation = Quaternion.Euler(0, cameraTransform.rotation.eulerAngles.x, 0);
     }
 }

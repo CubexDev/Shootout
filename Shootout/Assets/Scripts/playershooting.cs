@@ -56,6 +56,8 @@ public class playershooting : NetworkBehaviour
         if (Physics.Raycast(cam.position, cam.TransformDirection(Vector3.forward), out hit, Mathf.Infinity, layerMask))
         {
             if (hit.collider.gameObject.layer == 8) //Layer: "Enemy"
+                playerHit(hit.collider.GetComponent<playershooting>());
+            if (hit.collider.gameObject.layer == 9) //Layer: "EnemyBody"
                 playerHit(hit.collider.GetComponent<playerFinder>().playershootingScripct);
 
             laserEffectServerRPC(hit.distance);

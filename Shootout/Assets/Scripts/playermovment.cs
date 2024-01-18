@@ -30,6 +30,8 @@ public class playermovment : NetworkBehaviour
 
     CharacterController controller;
     internal Vector3 velocity;
+    Vector3 lastPosition;
+    Vector3 deltaPosition;
 
     PlayerInput playerInput;
     InputAction moveAction;
@@ -55,7 +57,11 @@ public class playermovment : NetworkBehaviour
                 UpdateJump();
             }
         }
-        if(!_isDead) UpdateGravity();
+        if(!_isDead)
+            UpdateGravity();
+
+        deltaPosition = transform.position - lastPosition;
+        lastPosition = transform.position;
 
         updateBodyRot();
         updateWheelRot();
@@ -147,14 +153,13 @@ public class playermovment : NetworkBehaviour
 
     void updateBodyRot()
     {
-        Vector3 v = bodyDirTransform.InverseTransformDirection(velocity);
+        Vector3 v = bodyDirTransform.InverseTransformDirection(deltaPosition);
         bodyRotTransform.localRotation = Quaternion.Euler(0, v.z * tiltStrength, - v.y * tiltStrength);
     }
 
     void updateWheelRot()
     {
-        Vector3 v = new Vector3(velocity.x, 0, velocity.z);
-        Debug.Log(velocity);
+        Vector3 v = new Vector3(deltaPosition.x, 0, deltaPosition.z);
         if(v != Vector3.zero)
         {
             float angle = Mathf.Atan2(v.x, v.z) * Mathf.Rad2Deg;

@@ -14,16 +14,17 @@ public class JumpPad : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log("trigger");
-        if (other.transform.parent.tag != "Player")
+        if(other.tag != "Player")
             return;
 
+        playermovment p = other.GetComponent<playerFinder>().playershootingScripct.gameObject.GetComponent<playermovment>();
+
         if (jumppadType == JumppadType.HighJumppad)
-            other.GetComponentInParent<playermovment>().jumppadYVelocity(highVelocity);
+            p.jumppadYVelocity(highVelocity);
         else
         {
-            other.GetComponentInParent<playermovment>().jumppadVelocityMultiplier(farVelocityMultiplier);
-            other.GetComponentInParent<playermovment>().jumppadYVelocity(highVelocity);
+            p.jumppadVelocityMultiplier(farVelocityMultiplier);
+            p.jumppadYVelocity(highVelocity);
         }
     }
 }

@@ -108,7 +108,6 @@ public class Playermanager : NetworkBehaviour
     {
         Vector3 newPos = Spawnlocation.getLocation();
         transform.position = newPos;
-        transform.rotation = Quaternion.LookRotation(- new Vector3(0, newPos.y, 0));
     }
 
     public void shotOtherPlayer(string hitPlayer)
