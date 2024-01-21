@@ -33,7 +33,8 @@ public class playermovment : NetworkBehaviour
     CharacterController controller;
     internal Vector3 velocity;
 
-    Vector3[] lastPositions = new Vector3[3];
+    Vector3[] lastPositions = new Vector3[6];
+    float[] lastDeltaTimes = new float[] { 0.05f, 0.05f, 0.05f, 0.05f, 0.05f, 0.05f };
     Vector3 deltaPosition;
     Vector3 initialSpringScale;
 
@@ -71,18 +72,27 @@ public class playermovment : NetworkBehaviour
         updateSpring();
     }
 
+    
+
     void updatePosVelAcc()
     {
         deltaPosition = transform.position - lastPositions[0];
+        deltaPosition /= Time.deltaTime;
         for (int i = 0; i < lastPositions.Length - 1; i++)
         {
-            deltaPosition += lastPositions[i] - lastPositions[i + 1];
+            Vector3 diff = lastPositions[i] - lastPositions[i + 1];
+            diff /= lastDeltaTimes[i];
+            deltaPosition += diff;
         }
-        deltaPosition /= Time.deltaTime * lastPositions.Length;
+        deltaPosition /= lastPositions.Length;
 
         for (int i = lastPositions.Length - 1; i > 0; i--)
-        { lastPositions[i] = lastPositions[i - 1]; }
+        {
+            lastPositions[i] = lastPositions[i - 1];
+            lastDeltaTimes[i] = lastDeltaTimes[i - 1];
+        }
         lastPositions[0] = transform.position;
+        lastDeltaTimes[0] = Time.deltaTime;
     }
 
     void UpdatePrejump()
@@ -162,7 +172,7 @@ public class playermovment : NetworkBehaviour
     {
         Vector3 v = bodyDirTransform.InverseTransformDirection(deltaPosition);
         v = Vector3.ClampMagnitude(v, tiltAmmount_max);
-        bodyRotTransform.localRotation = Quaternion.Euler(0, v.z * tiltStrength, - v.y * tiltStrength);
+        bodyRotTransform.localRotation = Quaternion.Euler(0, v.z * tiltStrength, - v.y * tiltStrength); 
     }
 
     void updateWheelRot()
