@@ -33,7 +33,7 @@ public class playermovment : NetworkBehaviour
     CharacterController controller;
     internal Vector3 velocity;
 
-    Vector3 lastPosition;
+    Vector3[] lastPositions = new Vector3[3];
     Vector3 deltaPosition;
     Vector3 initialSpringScale;
 
@@ -73,9 +73,16 @@ public class playermovment : NetworkBehaviour
 
     void updatePosVelAcc()
     {
-        deltaPosition = transform.position - lastPosition;
-        deltaPosition /= Time.deltaTime;
-        lastPosition = transform.position;
+        deltaPosition = transform.position - lastPositions[0];
+        for (int i = 0; i < lastPositions.Length - 1; i++)
+        {
+            deltaPosition += lastPositions[i] - lastPositions[i + 1];
+        }
+        deltaPosition /= Time.deltaTime * lastPositions.Length;
+
+        for (int i = lastPositions.Length - 1; i > 0; i--)
+        { lastPositions[i] = lastPositions[i - 1]; }
+        lastPositions[0] = transform.position;
     }
 
     void UpdatePrejump()
