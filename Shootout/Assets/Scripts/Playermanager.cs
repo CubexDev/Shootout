@@ -81,6 +81,7 @@ public class Playermanager : NetworkBehaviour
             ownerPlayer = this;
             _playerName.Value = new FixedString64Bytes(Manager.Instance.currentPlayerName);
             Destroy(nameLabel.gameObject);
+            spawn();
         }
     }
 

@@ -10,6 +10,8 @@ public class playermovment : NetworkBehaviour
     [SerializeField] Transform bodyDirTransform;
     [SerializeField] Transform bodyRotTransform;
     [SerializeField] Transform wheelTransform;
+    [SerializeField] Transform upperBodyTransform;
+    [SerializeField] Transform springTransform;
 
     [SerializeField] float movementSpeed = 5f;
     [SerializeField] float jumpSpeed = 5f;
@@ -18,20 +20,22 @@ public class playermovment : NetworkBehaviour
     [SerializeField] float groundAcceleration = 20f;
     [SerializeField] float airAccelerationAnteil = 0.5f;
     [SerializeField] float tiltStrength = 5f;
+    [SerializeField] float tiltAmmount_max = 5f; //resultat hängt von "movementSpeed" und von "tiltStrength" ab
+    [SerializeField] float springMovement_strength = 5f;
+    [SerializeField] float springMovement_max = 5f;
+    [SerializeField] float springScaling = 4.545f; //x2 := 0.216 x0.5 := -0.11  x1:= 0  f(x) = 4.545454545 * x + 1
 
     public bool isGrounded => controller.isGrounded;
     public bool _isDead => Playermanager.ownerPlayer.isDead.Value;
     float prejumpTimer = -1f;
 
-    //public event Action OnBeforeMove; //not used yet
-    internal float movementSpeedMulitplier; //not used yet
-    public event Action<bool> OnGroundStateChange; //not used yet
-    private bool wasGrounded; //not used yet
 
     CharacterController controller;
     internal Vector3 velocity;
+
     Vector3 lastPosition;
     Vector3 deltaPosition;
+    Vector3 initialSpringScale;
 
     PlayerInput playerInput;
     InputAction moveAction;
@@ -44,6 +48,7 @@ public class playermovment : NetworkBehaviour
         jumpAction = playerInput.actions["Jump"];
 
         controller = GetComponent<CharacterController>();
+        initialSpringScale = springTransform.localScale;
     }
 
     void Update()
@@ -60,13 +65,17 @@ public class playermovment : NetworkBehaviour
         if(!_isDead)
             UpdateGravity();
 
-        deltaPosition = transform.position - lastPosition;
-        lastPosition = transform.position;
-
+        updatePosVelAcc();
         updateBodyRot();
         updateWheelRot();
+        updateSpring();
+    }
 
-        //UpdateGround(); //not used yet
+    void updatePosVelAcc()
+    {
+        deltaPosition = transform.position - lastPosition;
+        deltaPosition /= Time.deltaTime;
+        lastPosition = transform.position;
     }
 
     void UpdatePrejump()
@@ -108,15 +117,6 @@ public class playermovment : NetworkBehaviour
         velocity.y = yVelocity;
     }
 
-    void UpdateGround()  //not used yet
-    {
-        if (wasGrounded != isGrounded)
-        {
-            OnGroundStateChange?.Invoke(isGrounded);
-            wasGrounded = isGrounded;
-        }
-    }
-
     void UpdateGravity()
     {
         Vector3 gravity = Physics.gravity * mass * Time.deltaTime;
@@ -154,6 +154,7 @@ public class playermovment : NetworkBehaviour
     void updateBodyRot()
     {
         Vector3 v = bodyDirTransform.InverseTransformDirection(deltaPosition);
+        v = Vector3.ClampMagnitude(v, tiltAmmount_max);
         bodyRotTransform.localRotation = Quaternion.Euler(0, v.z * tiltStrength, - v.y * tiltStrength);
     }
 
@@ -165,6 +166,17 @@ public class playermovment : NetworkBehaviour
             float angle = Mathf.Atan2(v.x, v.z) * Mathf.Rad2Deg;
             wheelTransform.eulerAngles = wheelTransform.up * angle;
         }
+    }
+
+    void updateSpring()
+    {
+        float shift_in_units = Mathf.Clamp(deltaPosition.y * springMovement_strength, -springMovement_max, springMovement_max);
+        //body
+        upperBodyTransform.localPosition = Vector3.right * shift_in_units;
+        //spring
+        Vector3 springScale = initialSpringScale;
+        springScale.y *= shift_in_units * springScaling + 1;
+        springTransform.localScale = springScale;
     }
 }
  
