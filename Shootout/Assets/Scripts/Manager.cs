@@ -48,7 +48,14 @@ public class Manager : NetworkBehaviour
         lobbyCode = UIManager.Instance.getLobbyCodeInput();
 
         UIManager.Instance.connectingScreen();
-        bool connectionSuccessful = await RelayConnection.StartClientWithRelay(lobbyCode);
+        bool connectionSuccessful = false;
+        try
+        {
+            if (string.IsNullOrEmpty(lobbyCode))
+                connectionSuccessful = false;
+            else
+                connectionSuccessful = await RelayConnection.StartClientWithRelay(lobbyCode);
+        } catch (Exception ex) { connectionSuccessful = false; Debug.LogError(ex); }
         if (connectionSuccessful)
         {
             //wait for map

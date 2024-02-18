@@ -14,6 +14,8 @@ public class SettingsManager : MonoBehaviour
     public NetworkManager networkManager;
     public UnityTransport netTransport;
 
+    [SerializeField] TMP_Text versionTxt;
+
     private void Awake()
     {
         if (Instance == null)
@@ -23,6 +25,8 @@ public class SettingsManager : MonoBehaviour
 
         Manager.gameContinued += activation;
         Manager.gameStarted += activation;
+
+        versionTxt.text = "v" + Application.version;
     }
 
     private void Update()
@@ -43,8 +47,8 @@ public class SettingsManager : MonoBehaviour
         Manager.Instance.closeSettings();
         settingsScreen.SetActive(false);
 
-        netTransport.MaxPacketQueueSize = int.Parse(v_packetInput.text);
-        netTransport.MaxPayloadSize = int.Parse(v_payloadInput.text);
+        //netTransport.MaxPacketQueueSize = int.Parse(v_packetInput.text);
+        //netTransport.MaxPayloadSize = int.Parse(v_payloadInput.text);
     }
 
     #region controllsSetttings

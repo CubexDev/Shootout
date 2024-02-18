@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class UIManager : MonoBehaviour
 {
@@ -66,8 +67,20 @@ public class UIManager : MonoBehaviour
     }
 
     #region treeMovement
+    public void continueBranch_releasedEnter(GameObject nextUI)
+    {
+        StartCoroutine(I_continueBranch_releasedEnter(nextUI));
+    }
+
+    IEnumerator I_continueBranch_releasedEnter(GameObject nextUI)
+    {
+        yield return new WaitWhile(enterAction.IsPressed);
+        continueBranch(nextUI);
+    }
+
     public void continueBranch(GameObject nextUI)
     {
+        Debug.Log(nextUI.name);
         if (uiStack.Peek().transform.Find("UI") != null)
             uiStack.Peek().transform.Find("UI").gameObject.SetActive(false);
         foreach (Transform eachChild in uiStack.Peek().transform)
@@ -76,6 +89,7 @@ public class UIManager : MonoBehaviour
             {
                 eachChild.gameObject.SetActive(true);
                 uiStack.Push(eachChild.gameObject);
+                selectFirstButton(eachChild.transform);
                 return;
             }    
         }
@@ -92,9 +106,32 @@ public class UIManager : MonoBehaviour
         {
             childO.gameObject.SetActive(true);
             uiStack.Push(childO.gameObject);
+            selectFirstButton(childO.transform);
             return;
         }
         Debug.LogWarning("UIManager: UI not available: " + nextUI);
+    }
+
+    void selectFirstButton(Transform panel)
+    {
+        Debug.Log("selectfunc" + panel.name);
+        Transform uiChild = panel.Find("UI");
+        if (uiChild != null)
+        {
+            Debug.Log("uifound" + panel.name);
+            foreach (Transform eachChild in uiChild)
+            {
+                if (!eachChild.gameObject.activeSelf)
+                    continue;
+                Button btn = eachChild.GetComponent<Button>();
+                if (btn != null)
+                {
+                    Debug.Log("btnfound" + btn.name);
+                    btn.Select();
+                    return;
+                }
+            }
+        }
     }
 
     public void revertBranch()
@@ -103,6 +140,7 @@ public class UIManager : MonoBehaviour
         uiStack.Pop();
         if (uiStack.Peek().transform.Find("UI") != null)
             uiStack.Peek().transform.Find("UI").gameObject.SetActive(true);
+        selectFirstButton(uiStack.Peek().transform);
     }
     #endregion
 

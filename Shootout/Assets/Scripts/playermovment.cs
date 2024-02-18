@@ -4,6 +4,7 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
 using System;
+using UnityEngine.InputSystem.Utilities;
 
 public class playermovment : NetworkBehaviour
 {
@@ -32,6 +33,7 @@ public class playermovment : NetworkBehaviour
 
     CharacterController controller;
     internal Vector3 velocity;
+    NetworkVariable<Vector3> networkVelocity;
 
     Vector3[] lastPositions = new Vector3[6];
     float[] lastDeltaTimes = new float[] { 0.05f, 0.05f, 0.05f, 0.05f, 0.05f, 0.05f };
@@ -41,6 +43,12 @@ public class playermovment : NetworkBehaviour
     PlayerInput playerInput;
     InputAction moveAction;
     InputAction jumpAction;
+
+    private void Awake()
+    {
+        networkVelocity = new NetworkVariable<Vector3>
+            (Vector3.zero, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Owner);
+    }
 
     void Start()
     {
@@ -62,37 +70,12 @@ public class playermovment : NetworkBehaviour
             {
                 UpdateJump();
             }
-        }
-        if(!_isDead)
             UpdateGravity();
+        }
 
-        updatePosVelAcc();
         updateBodyRot();
         updateWheelRot();
         updateSpring();
-    }
-
-    
-
-    void updatePosVelAcc()
-    {
-        deltaPosition = transform.position - lastPositions[0];
-        deltaPosition /= Time.deltaTime;
-        for (int i = 0; i < lastPositions.Length - 1; i++)
-        {
-            Vector3 diff = lastPositions[i] - lastPositions[i + 1];
-            diff /= lastDeltaTimes[i];
-            deltaPosition += diff;
-        }
-        deltaPosition /= lastPositions.Length;
-
-        for (int i = lastPositions.Length - 1; i > 0; i--)
-        {
-            lastPositions[i] = lastPositions[i - 1];
-            lastDeltaTimes[i] = lastDeltaTimes[i - 1];
-        }
-        lastPositions[0] = transform.position;
-        lastDeltaTimes[0] = Time.deltaTime;
     }
 
     void UpdatePrejump()
@@ -112,6 +95,8 @@ public class playermovment : NetworkBehaviour
                 prejumpTimer = -1f;
             }
         }
+
+        Debug.Log("prejump: " + velocity.y);
     }
 
     private void UpdateJump()
@@ -140,6 +125,8 @@ public class playermovment : NetworkBehaviour
         velocity.y = controller.isGrounded ? velocity.y : velocity.y + gravity.y;
 
         controller.Move(velocity * Time.deltaTime);
+
+        velocity.y = controller.isGrounded && velocity.y < 0 ? 0 : velocity.y;
     }
     
     Vector3 GetMovementInput()
@@ -157,27 +144,28 @@ public class playermovment : NetworkBehaviour
     {
         Vector3 input = Vector3.zero;
 
-        
         if (Manager.Instance.gamestate == Manager.GameState.Game)
             input = GetMovementInput();
-
 
         //ground slip; wenn in der Luf -> nur ..% der eigentlichen beschleunigung
         float factor = Time.deltaTime * groundAcceleration * (isGrounded ? 1 : airAccelerationAnteil);
         velocity.x = Mathf.Lerp(velocity.x, input.x, factor);
         velocity.z = Mathf.Lerp(velocity.z, input.z, factor);
+
+        networkVelocity.Value = velocity;
+        Debug.Log("movement: " + velocity.y);
     }
 
     void updateBodyRot()
     {
-        Vector3 v = bodyDirTransform.InverseTransformDirection(deltaPosition);
+        Vector3 v = bodyDirTransform.InverseTransformDirection(networkVelocity.Value);
         v = Vector3.ClampMagnitude(v, tiltAmmount_max);
         bodyRotTransform.localRotation = Quaternion.Euler(0, v.z * tiltStrength, - v.y * tiltStrength); 
     }
 
     void updateWheelRot()
     {
-        Vector3 v = new Vector3(deltaPosition.x, 0, deltaPosition.z);
+        Vector3 v = new Vector3(networkVelocity.Value.x, 0, networkVelocity.Value.z);
         if(v != Vector3.zero)
         {
             float angle = Mathf.Atan2(v.x, v.z) * Mathf.Rad2Deg;
@@ -187,7 +175,7 @@ public class playermovment : NetworkBehaviour
 
     void updateSpring()
     {
-        float shift_in_units = Mathf.Clamp(deltaPosition.y * springMovement_strength, -springMovement_max, springMovement_max);
+        float shift_in_units = Mathf.Clamp(networkVelocity.Value.y * springMovement_strength, -springMovement_max, springMovement_max);
         //body
         upperBodyTransform.localPosition = Vector3.right * shift_in_units;
         //spring
